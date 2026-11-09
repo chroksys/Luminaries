@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
 /* ==========================================================================
    LUMINARIES CAPITAL â€” DESIGN SYSTEM & CORE STYLES
    Inspired by ramp.design & Luminaries Capital Brand Guidelines
@@ -31,6 +32,7 @@
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'Space Grotesk', monospace;
+  --font-badge: 'Open Sans', var(--font-body);
 
   /* Geometry & Spacing (Design.md specs) */
   --radius-tile: 40px;
@@ -579,7 +581,7 @@ button {
 }
 
 .megamenu-tag {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 10px;
   font-weight: 700;
   padding: 2px 7px;
@@ -776,11 +778,11 @@ button {
 }
 
 .hero-header.is-bottom .hero-eyebrow-text {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: 'Open Sans', var(--font-body);
+  font-size: 11.5px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   color: #44E0CE;
   display: inline-flex;
   align-items: center;
@@ -859,11 +861,11 @@ button {
 }
 
 .hero-header.is-docked .hero-eyebrow-text {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: 'Open Sans', var(--font-body);
+  font-size: 11.5px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   color: #44E0CE;
   display: inline-flex;
   align-items: center;
@@ -871,8 +873,8 @@ button {
 }
 
 .hero-header.is-docked .hero-market-indicator {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: 'Open Sans', var(--font-body);
+  font-size: 11.5px;
   color: rgba(255, 255, 255, 0.72);
   display: flex;
   align-items: center;
@@ -955,10 +957,10 @@ button {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(48px, 6.8vw, 98px);
+  font-size: clamp(52px, 7.5vw, 110px);
   font-weight: 300;
-  line-height: 0.94;
-  letter-spacing: -0.04em;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
   color: #FFFFFF;
 }
 
@@ -1266,54 +1268,65 @@ button {
 
 .card-header-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .card-brand-lockup {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .card-brand-lockup svg {
   width: 26px;
   height: 26px;
+  flex-shrink: 0;
 }
 
 .card-brand-title {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 15px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  line-height: 1;
 }
 
 .card-tier-tag {
-  font-family: var(--font-mono);
+  font-family: 'Open Sans', var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(4px);
+  line-height: 1.2;
 }
 
 .card-body-row {
   position: relative;
   z-index: 2;
   margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .card-balance-label {
+  font-family: 'Open Sans', var(--font-body);
   font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  opacity: 0.7;
+  opacity: 0.75;
   margin-bottom: 2px;
+  line-height: 1.2;
 }
 
 .card-balance-value {
@@ -1321,14 +1334,18 @@ button {
   font-size: 26px;
   font-weight: 600;
   letter-spacing: -0.03em;
+  line-height: 1.15;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .card-balance-value em {
   font-style: normal;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 400;
-  opacity: 0.8;
-  margin-left: 4px;
+  opacity: 0.75;
 }
 
 .card-footer-row {
@@ -1337,21 +1354,46 @@ button {
   justify-content: space-between;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 .card-number {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12.5px;
+  font-weight: 500;
   letter-spacing: 0.14em;
   opacity: 0.85;
+  line-height: 1.2;
+  margin-bottom: 2px;
 }
 
 .card-holder {
-  font-size: 12px;
+  font-family: 'Open Sans', var(--font-body);
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  line-height: 1.2;
 }
+
+/* Card Theme Specific Text Color Consistency */
+.card-ice-teal .card-brand-title { color: #004D47; }
+.card-ice-teal .card-tier-tag { background: rgba(0, 168, 150, 0.15); border-color: rgba(0, 168, 150, 0.25); color: #004D47; }
+.card-ice-teal .card-balance-label { color: #004D47; }
+.card-ice-teal .card-balance-value { color: #002B28; }
+.card-ice-teal .card-number { color: #004D47; }
+.card-ice-teal .card-holder { color: #002B28; }
+
+.card-pearl-goalsave .card-brand-title { color: #0C0A08; }
+.card-pearl-goalsave .card-tier-tag { background: rgba(0, 168, 150, 0.12); border-color: rgba(0, 168, 150, 0.22); color: #004D47; }
+.card-pearl-goalsave .card-balance-label { color: rgba(12, 10, 8, 0.65); }
+.card-pearl-goalsave .card-balance-value { color: #0C0A08; }
+.card-pearl-goalsave .card-number { color: rgba(12, 10, 8, 0.7); }
+.card-pearl-goalsave .card-holder { color: #0C0A08; }
+
+.card-deep-invest .card-tier-tag { background: rgba(228, 242, 34, 0.15); border-color: rgba(228, 242, 34, 0.25); color: #E4F222; }
+
+.card-film-photo .card-tier-tag { background: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.3); color: #FFFFFF; }
 
 /* Hero Controls & Wordmark */
 .hero-bottom-bar {
@@ -1389,18 +1431,26 @@ button {
 .carousel-btn {
   width: 44px;
   height: 44px;
+  padding: 0;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.1);
   color: #FFFFFF;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+}
+
+.carousel-btn svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  pointer-events: none;
 }
 
 .carousel-btn:hover {
@@ -1410,10 +1460,12 @@ button {
 }
 
 .carousel-hint {
-  font-family: var(--font-mono);
+  font-family: 'Open Sans', var(--font-body);
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
-  display: flex;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.65);
+  display: inline-flex;
   align-items: center;
   gap: 6px;
 }
@@ -1548,9 +1600,9 @@ button {
 
 .platform-stage-title {
   font-family: var(--font-display);
-  font-size: clamp(34px, 4vw, 56px);
+  font-size: clamp(36px, 4.4vw, 64px);
   font-weight: 300;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
   color: #0C0A08;
   line-height: 1.05;
   margin: 0 0 8px 0;
@@ -1652,52 +1704,114 @@ button {
   transition: none;
 }
 
-/* BIG 2-COLUMN GLASS CARDS (TEXT ON ONE SIDE, IMAGE ON OTHER) */
+/* IMMERSIVE PLATFORM CARDS WITH HOVER EXPANSION & BOTTOM-ALIGNED CONTENT */
 .platform-stream-card {
-  width: clamp(620px, 58vw, 800px);
+  width: clamp(620px, 58vw, 820px);
   height: clamp(380px, 44vh, 440px);
   flex-shrink: 0;
-  background-color: rgba(255, 255, 255, 0.92);
-  background-image:
-    linear-gradient(105deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.88) 48%, rgba(255, 255, 255, 0.72) 100%),
-    url("images/cards.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  position: relative;
   border-radius: 36px;
-  padding: 24px 26px;
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 24px;
-  align-items: center;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), 
+  padding: 0;
+  overflow: hidden;
+  background-color: #071916;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.28);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
               opacity 0.35s ease, 
-              border-color 0.3s ease, 
-              box-shadow 0.35s ease;
+              border-color 0.35s ease, 
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   opacity: 0.45;
   transform: scale(0.95);
-  position: relative;
-  overflow: hidden;
+  cursor: pointer;
 }
 
 .platform-stream-card.is-active {
   opacity: 1;
   transform: scale(1.02) translateY(-4px);
-  border-color: rgba(12, 10, 8, 0.15);
+  border-color: rgba(68, 224, 206, 0.35);
   box-shadow: 
-    0 0 1px hsl(205 20% 10% / 0.25), 
-    0 16px 40px -8px rgba(12, 10, 8, 0.12),
-    0 32px 75px -12px rgba(12, 10, 8, 0.08);
+    0 0 1px rgba(68, 224, 206, 0.5), 
+    0 24px 55px -12px rgba(0, 0, 0, 0.45),
+    0 12px 30px rgba(0, 168, 150, 0.15);
 }
 
-/* LEFT SIDE: TEXT */
+/* HOVER EFFECT: Card expands noticeably with ambient glow */
+.platform-stream-card:hover,
+.platform-stream-card.is-active:hover {
+  transform: scale(1.045) translateY(-8px);
+  border-color: rgba(68, 224, 206, 0.55);
+  box-shadow: 
+    0 0 2px rgba(68, 224, 206, 0.8),
+    0 32px 70px -15px rgba(0, 0, 0, 0.6),
+    0 16px 36px rgba(0, 168, 150, 0.25);
+  z-index: 5;
+}
+
+/* FULL-BLEED BACKGROUND IMAGE SPREAD ACROSS CARD */
+.card-side-visual {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.visual-img-frame {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.visual-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transform: scale(1.02);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.platform-stream-card:hover .visual-card-img,
+.platform-stream-card.is-active:hover .visual-card-img {
+  transform: scale(1.08);
+}
+
+/* DUAL CINEMATIC SCRIM: Darkened at the bottom for text legibility, subtle fade at the top */
+.visual-img-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 18, 16, 0.05) 0%,
+    rgba(6, 18, 16, 0.2) 30%,
+    rgba(6, 18, 16, 0.65) 60%,
+    rgba(6, 18, 16, 0.92) 100%
+  );
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* BOTTOM-ALIGNED TEXT CONTAINER WITH SMOOTH ELEVATION ON HOVER */
 .card-side-text {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  padding: 6px 4px 6px 8px;
+  justify-content: flex-end;
+  padding: clamp(24px, 3.2vw, 36px);
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Text gently settles into the bottom on hover */
+.platform-stream-card:hover .card-side-text {
+  transform: translateY(-2px);
 }
 
 .card-eyebrow-row {
@@ -1708,27 +1822,31 @@ button {
 }
 
 .card-eyebrow-tag {
-  font-family: var(--font-mono);
+  font-family: 'Open Sans', var(--font-body);
   font-size: 11px;
   font-weight: 700;
-  color: rgba(12, 10, 8, 0.6);
-  letter-spacing: 0.08em;
+  color: #44E0CE;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .card-rate-pill {
-  padding: 3px 10px;
+  padding: 4px 11px;
   border-radius: var(--radius-pill);
-  font-family: var(--font-body);
-  font-size: 11.5px;
+  font-family: 'Open Sans', var(--font-body);
+  font-size: 11px;
   font-weight: 700;
-  background: #E6F7F5;
-  color: #004D47;
+  background: rgba(2, 195, 154, 0.18);
+  border: 1px solid rgba(2, 195, 154, 0.35);
+  color: #00F5D4;
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.02em;
 }
 
 .card-rate-pill.solar-pill {
-  background: var(--color-solar);
-  color: #0C0A08;
+  background: rgba(228, 242, 34, 0.18);
+  border-color: rgba(228, 242, 34, 0.38);
+  color: var(--color-solar);
 }
 
 .card-hero-headline {
@@ -1736,43 +1854,80 @@ button {
   font-size: clamp(23px, 2.3vw, 32px);
   font-weight: 400;
   letter-spacing: -0.03em;
-  color: #0C0A08;
+  color: #FFFFFF;
   line-height: 1.15;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
+  max-width: 680px;
 }
 
 .card-hero-desc {
-  font-family: var(--font-body);
+  font-family: 'Open Sans', var(--font-body);
   font-size: clamp(13px, 1.05vw, 14.5px);
-  color: rgba(12, 10, 8, 0.62);
+  color: rgba(255, 255, 255, 0.76);
   line-height: 1.45;
   margin: 0 0 16px 0;
-  max-width: 320px;
+  max-width: 600px;
 }
 
+/* CTA ROW: BUTTON & PRICE TAG PLACED SIDE-BY-SIDE IN ONE STREAMLINED ROW */
 .card-cta-wrap {
-  margin-top: auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.visual-glass-chip.glass3d {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  background: rgba(10, 24, 21, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  margin: 0 !important;
+  width: auto !important;
+}
+
+.visual-glass-chip .chip-label {
+  font-family: 'Open Sans', var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.02em;
+}
+
+.visual-glass-chip .chip-value {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #00F5D4;
 }
 
 .card-action-pill {
   display: inline-flex;
   align-items: center;
-  padding: 10px 22px;
+  padding: 10px 24px;
   border-radius: var(--radius-pill);
-  background: #0C0A08;
-  color: #FFFFFF;
-  font-family: var(--font-body);
+  background: #FFFFFF;
+  color: #0C0A08;
+  font-family: 'Open Sans', var(--font-body);
   font-size: 13.5px;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  width: fit-content;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
 .card-action-pill:hover {
-  background: #24292F;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  background: #F0F0F0;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
 }
 
 .card-action-pill.btn-solar {
@@ -1786,67 +1941,9 @@ button {
   color: #000000;
 }
 
-/* RIGHT SIDE: IMAGE */
-.card-side-visual {
-  height: 100%;
-  min-height: 280px;
-  position: relative;
-}
 
-.visual-img-frame {
-  width: 100%;
-  height: 100%;
-  border-radius: 24px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 4px 18px rgba(12, 10, 8, 0.08);
-  background: #F1F3F5;
-}
 
-.visual-card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
 
-.platform-stream-card.is-active:hover .visual-card-img {
-  transform: scale(1.04);
-}
-
-/* FLOATING GLASS BADGE OVER IMAGE */
-.visual-glass-chip.glass3d {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  right: 12px;
-  padding: 9px 14px;
-  border-radius: 14px;
-  background: rgba(14, 20, 24, 0.68);
-  color: #FFFFFF;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.visual-glass-chip .chip-label {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 0.04em;
-}
-
-.visual-glass-chip .chip-value {
-  font-family: var(--font-display);
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #FFFFFF;
-}
 
 /* APPLE-STYLE CAPSULE CONTROLS & FOOTER */
 .platform-stage-footer {
@@ -1992,7 +2089,7 @@ button {
 }
 
 .section-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -2066,7 +2163,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -2483,7 +2580,7 @@ button {
 }
 
 .per-diem-status-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 10px;
   font-weight: 600;
   padding: 2px 8px;
@@ -2617,7 +2714,7 @@ button {
 }
 
 .showcase-location-tag {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: clamp(12px, 1.2vw, 15px);
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -2820,7 +2917,7 @@ button {
 }
 
 .subpage-eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -2917,7 +3014,7 @@ button {
 }
 
 .luxury-card-badge {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 10.5px;
   font-weight: 600;
   text-transform: uppercase;
@@ -3403,9 +3500,9 @@ button {
 .showcase-section-header h2 {
   margin: 0 0 18px;
   font-family: var(--font-display);
-  font-size: clamp(40px, 5.8vw, 78px);
+  font-size: clamp(44px, 6.4vw, 88px);
   font-weight: 350;
-  line-height: 0.96;
+  line-height: 0.93;
   letter-spacing: -0.045em;
   color: var(--color-ink);
 }
@@ -3536,10 +3633,10 @@ button {
 .showcase-tile-copy h3 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(28px, 3vw, 42px);
-  font-weight: 450;
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  font-size: clamp(30px, 3.4vw, 48px);
+  font-weight: 420;
+  line-height: 1.01;
+  letter-spacing: -0.038em;
 }
 
 .frosted-card-control-ui {
@@ -3588,7 +3685,7 @@ button {
 }
 
 .poster-eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -3780,8 +3877,10 @@ button {
 }
 
 .carousel-hint {
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 11px;
+  font-family: 'Open Sans', var(--font-body);
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 11.5px;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -3972,7 +4071,7 @@ button {
 
 .how-wheel-kicker,
 .how-step-label {
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -3981,12 +4080,12 @@ button {
 }
 
 .how-wheel-header h2 {
-  max-width: 760px;
+  max-width: 820px;
   margin: 12px 0 14px;
   font-family: var(--font-display);
-  font-size: clamp(38px, 5vw, 68px);
+  font-size: clamp(42px, 5.6vw, 76px);
   font-weight: 350;
-  line-height: 0.94;
+  line-height: 0.93;
   letter-spacing: -0.045em;
   color: var(--color-ink);
 }
@@ -4163,12 +4262,12 @@ button {
 }
 
 .how-step-panel h3 {
-  max-width: 560px;
+  max-width: 600px;
   margin: 14px 0 16px;
   font-family: var(--font-display);
-  font-size: clamp(32px, 3.6vw, 52px);
+  font-size: clamp(34px, 4vw, 58px);
   font-weight: 420;
-  line-height: 1.02;
+  line-height: 1.01;
   letter-spacing: -0.04em;
   color: var(--color-ink);
 }
@@ -4519,7 +4618,7 @@ button {
 .footer-eyebrow {
   display: block;
   margin-bottom: 20px;
-  font-family: var(--font-mono);
+  font-family: var(--font-badge);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: .13em;
@@ -4528,13 +4627,13 @@ button {
 }
 
 .footer-cta h2 {
-  max-width: 900px;
+  max-width: 980px;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(44px, 6.4vw, 92px);
+  font-size: clamp(48px, 7.2vw, 104px);
   font-weight: 340;
-  line-height: .94;
-  letter-spacing: -.05em;
+  line-height: .92;
+  letter-spacing: -.052em;
   text-wrap: balance;
 }
 
@@ -5031,12 +5130,6 @@ button {
     font-size: 14px;
   }
 
-  .card-side-visual {
-    height: 170px;
-    min-height: 170px;
-    border-radius: 20px;
-  }
-
   .platform-cards-viewport {
     padding: 14px 16px 20px;
     scroll-padding-inline: 16px;
@@ -5048,51 +5141,71 @@ button {
 
   .platform-stream-card,
   .platform-stream-card.glass3d {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 1fr;
     width: calc(100vw - 32px);
-    max-width: 360px;
-    height: auto;
-    min-height: 0;
-    padding: 16px;
-    gap: 14px;
-    border-radius: 24px;
+    max-width: 380px;
+    height: 420px;
+    min-height: 400px;
+    padding: 0;
+    border-radius: 28px;
     opacity: 1 !important;
     transform: none !important;
     scroll-snap-align: center;
-    box-shadow: none;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
   }
 
   .platform-stream-card.is-active {
     transform: none !important;
-    box-shadow: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  .card-side-visual {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border-radius: 28px;
+  }
+
+  .visual-img-frame::after {
+    background: linear-gradient(
+      180deg,
+      rgba(6, 18, 16, 0.88) 0%,
+      rgba(6, 18, 16, 0.78) 55%,
+      rgba(6, 18, 16, 0.94) 100%
+    );
   }
 
   .card-side-text {
-    min-width: 0;
+    position: relative;
+    z-index: 2;
+    padding: 24px 20px;
+    max-width: none;
+    justify-content: space-between;
+    height: 100%;
   }
 
   .card-eyebrow-row {
     flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 7px;
+    gap: 8px;
+    margin-bottom: 8px;
   }
 
   .card-hero-headline {
     font-size: 22px;
-    line-height: 1.08;
-    margin-bottom: 8px;
+    line-height: 1.14;
+    margin-bottom: 6px;
   }
 
   .card-hero-desc {
     max-width: none;
-    margin-bottom: 12px;
-    font-size: 13px;
-    line-height: 1.42;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    margin-bottom: 16px;
+    font-size: 13.5px;
+    line-height: 1.45;
   }
+
+
 
   .card-action-pill {
     min-height: 44px;
@@ -5259,13 +5372,8 @@ button {
   .platform-stream-card,
   .platform-stream-card.glass3d {
     width: calc(100vw - 24px);
-    padding: 14px;
-    gap: 12px;
-  }
-
-  .card-side-visual {
-    height: 150px;
-    min-height: 150px;
+    height: 390px;
+    padding: 0;
   }
 
   .card-hero-headline {
