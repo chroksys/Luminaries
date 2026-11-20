@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initEditorialFooter();
   initGoalSaveCalculator();
   initContactForm();
+  initSitewideMotion();
 });
 
 /* ========================================================================== 
@@ -31,47 +32,255 @@ document.addEventListener('DOMContentLoaded', () => {
 function initHeroCalculator() {
   const calculator = document.querySelector('.hero-calculator');
   if (!calculator) return;
-  const [deposit, months, rate] = calculator.querySelectorAll('input');
+
+  const deposit = calculator.querySelector('#projection-deposit');
+  const months = calculator.querySelector('#projection-months');
+  const rate = calculator.querySelector('#projection-rate');
+  const depositRange = calculator.querySelector('#projection-deposit-range');
+  const monthsRange = calculator.querySelector('#projection-months-range');
+  const rateRange = calculator.querySelector('#projection-rate-range');
   const saved = calculator.querySelector('#projection-saved');
   const invested = calculator.querySelector('#projection-invested');
+  const gain = calculator.querySelector('#projection-gain');
+  const gainPct = calculator.querySelector('#projection-gain-pct');
+  const durationLabel = calculator.querySelector('#projection-duration-label');
+  const chartEndLabel = calculator.querySelector('#projection-chart-end');
+  const barPrincipal = calculator.querySelector('#projection-bar-principal');
+  const barGrowth = calculator.querySelector('#projection-bar-growth');
+  const chartSaved = calculator.querySelector('#projection-chart-saved');
+  const chartInvested = calculator.querySelector('#projection-chart-invested');
+  const chartArea = calculator.querySelector('#projection-chart-area');
+  const chartDot = calculator.querySelector('#projection-chart-dot');
+  const depositMinLabel = calculator.querySelector('#projection-deposit-min');
+  const depositMaxLabel = calculator.querySelector('#projection-deposit-max');
   const note = calculator.querySelector('#projection-note');
-  const assumptions = note.textContent;
+  const assumptions = note ? note.textContent : '';
   const denomination = calculator.querySelector('#projection-currency');
   const unit = calculator.querySelector('#projection-unit');
+  const presets = Array.from(calculator.querySelectorAll('.planner-preset'));
+
+  const currencyScales = {
+    UGX: { min: 20000, max: 2000000, step: 10000, scale: 1, minTxt: 'UGX 20k', maxTxt: 'UGX 2M' },
+    TZS: { min: 15000, max: 1500000, step: 5000, scale: 0.7, minTxt: 'TZS 15k', maxTxt: 'TZS 1.5M' },
+    RWF: { min: 10000, max: 800000, step: 5000, scale: 0.35, minTxt: 'RWF 10k', maxTxt: 'RWF 800k' },
+    BIF: { min: 20000, max: 2000000, step: 10000, scale: 0.8, minTxt: 'BIF 20k', maxTxt: 'BIF 2M' },
+    NGN: { min: 10000, max: 1000000, step: 5000, scale: 0.45, minTxt: 'NGN 10k', maxTxt: 'NGN 1M' },
+    KES: { min: 1000, max: 100000, step: 500, scale: 0.035, minTxt: 'KES 1k', maxTxt: 'KES 100k' },
+    ETB: { min: 1000, max: 100000, step: 500, scale: 0.035, minTxt: 'ETB 1k', maxTxt: 'ETB 100k' },
+    SSP: { min: 5000, max: 500000, step: 2500, scale: 0.25, minTxt: 'SSP 5k', maxTxt: 'SSP 500k' },
+    GHS: { min: 100, max: 10000, step: 50, scale: 0.004, minTxt: 'GHS 100', maxTxt: 'GHS 10k' },
+    ZMW: { min: 200, max: 20000, step: 100, scale: 0.007, minTxt: 'ZMW 200', maxTxt: 'ZMW 20k' },
+    ZAR: { min: 200, max: 15000, step: 100, scale: 0.005, minTxt: 'ZAR 200', maxTxt: 'ZAR 15k' },
+    NAD: { min: 200, max: 15000, step: 100, scale: 0.005, minTxt: 'NAD 200', maxTxt: 'NAD 15k' },
+    BWP: { min: 150, max: 10000, step: 50, scale: 0.004, minTxt: 'BWP 150', maxTxt: 'BWP 10k' },
+    USD: { min: 10, max: 2000, step: 10, scale: 0.0003, minTxt: 'USD 10', maxTxt: 'USD 2k' },
+    EUR: { min: 10, max: 2000, step: 10, scale: 0.0003, minTxt: 'EUR 10', maxTxt: 'EUR 2k' },
+    GBP: { min: 10, max: 2000, step: 10, scale: 0.00025, minTxt: 'GBP 10', maxTxt: 'GBP 2k' }
+  };
+
   let formatter;
-  function setCurrency() {
+  let currentScale = currencyScales.UGX;
+
+  function updateSliderFill(slider) {
+    if (!slider) return;
+    const min = parseFloat(slider.min) || 0;
+    const max = parseFloat(slider.max) || 100;
+    const val = Math.min(max, Math.max(min, parseFloat(slider.value) || min));
+    const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+    slider.style.setProperty('--slider-pct', `${pct.toFixed(1)}%`);
+  }
+
+  function formatDuration(m) {
+    if (m < 12) return `${m} ${m === 1 ? 'month' : 'months'}`;
+    const yrs = Math.floor(m / 12);
+    const rem = m % 12;
+    if (rem === 0) return `${yrs} ${yrs === 1 ? 'year' : 'years'}`;
+    return `${yrs}y ${rem}m`;
+  }
+
+  function setCurrency(rebalanceAmount = false) {
+    const code = denomination.value;
+    currentScale = currencyScales[code] || currencyScales.USD;
     formatter = new Intl.NumberFormat(document.documentElement.lang || 'en', {
-      style: 'currency', currency: denomination.value, currencyDisplay: 'code'
+      style: 'currency', currency: code, currencyDisplay: 'code',
+      maximumFractionDigits: ['UGX', 'TZS', 'RWF', 'BIF', 'KES', 'NGN'].includes(code) ? 0 : 2
     });
     const digits = formatter.resolvedOptions().maximumFractionDigits;
     deposit.step = deposit.min = String(10 ** -digits);
-    unit.textContent = '(' + denomination.value + ')';
+    unit.textContent = '(' + code + ')';
+
+    if (depositRange) {
+      depositRange.min = String(currentScale.min);
+      depositRange.max = String(currentScale.max);
+      depositRange.step = String(currentScale.step);
+    }
+    if (depositMinLabel) depositMinLabel.textContent = currentScale.minTxt;
+    if (depositMaxLabel) depositMaxLabel.textContent = currentScale.maxTxt;
+
+    if (rebalanceAmount) {
+      const activePreset = presets.find((btn) => btn.classList.contains('is-active'));
+      const baseUgx = activePreset ? parseFloat(activePreset.dataset.deposit) : 100000;
+      const scaled = Math.max(currentScale.min, Math.round((baseUgx * currentScale.scale) / currentScale.step) * currentScale.step);
+      deposit.value = String(scaled);
+      if (depositRange) depositRange.value = String(Math.min(currentScale.max, Math.max(currentScale.min, scaled)));
+    }
   }
+
+  function renderChart(payment, periods, monthlyRate) {
+    if (!chartSaved || !chartInvested || !chartArea) return;
+    const width = 420;
+    const height = 132;
+    const padX = 8;
+    const padTop = 14;
+    const padBottom = 10;
+    const plotW = width - padX * 2;
+    const plotH = height - padTop - padBottom;
+    const steps = 24;
+
+    const savedPts = [];
+    const invPts = [];
+    let maxVal = 1;
+
+    for (let i = 0; i <= steps; i += 1) {
+      const m = (periods * i) / steps;
+      const sVal = payment * m;
+      const factor = monthlyRate === 0 ? m : Math.expm1(m * Math.log1p(monthlyRate)) / monthlyRate;
+      const iVal = Math.max(0, payment * factor);
+      savedPts.push(sVal);
+      invPts.push(iVal);
+      if (sVal > maxVal) maxVal = sVal;
+      if (iVal > maxVal) maxVal = iVal;
+    }
+
+    const toXY = (val, idx) => {
+      const x = padX + (plotW * idx) / steps;
+      const y = padTop + plotH * (1 - val / maxVal);
+      return [Number(x.toFixed(1)), Number(y.toFixed(1))];
+    };
+
+    const savedCoords = savedPts.map(toXY);
+    const invCoords = invPts.map(toXY);
+
+    const savedD = savedCoords.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join(' ');
+    const invD = invCoords.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x} ${y}`).join(' ');
+    const lastInv = invCoords[invCoords.length - 1];
+    const areaD = `${invD} L${lastInv[0]} ${height} L${padX} ${height} Z`;
+
+    chartSaved.setAttribute('d', savedD);
+    chartInvested.setAttribute('d', invD);
+    chartArea.setAttribute('d', areaD);
+    if (chartDot) {
+      chartDot.setAttribute('cx', String(lastInv[0]));
+      chartDot.setAttribute('cy', String(lastInv[1]));
+    }
+  }
+
   function update(event) {
-    if (event?.target === denomination) setCurrency();
-    const invalid = [deposit, months, rate].find(input => !input.validity.valid);
+    const target = event?.target;
+    if (target === denomination) {
+      setCurrency(true);
+    } else if (target === depositRange) {
+      deposit.value = depositRange.value;
+      presets.forEach((btn) => btn.classList.remove('is-active'));
+    } else if (target === monthsRange) {
+      months.value = monthsRange.value;
+      presets.forEach((btn) => btn.classList.remove('is-active'));
+    } else if (target === rateRange) {
+      rate.value = rateRange.value;
+      presets.forEach((btn) => btn.classList.remove('is-active'));
+    } else if (target === deposit || target === months || target === rate) {
+      presets.forEach((btn) => btn.classList.remove('is-active'));
+    }
+
+    if (depositRange && Number.isFinite(deposit.valueAsNumber)) {
+      depositRange.value = String(Math.min(parseFloat(depositRange.max), Math.max(parseFloat(depositRange.min), deposit.valueAsNumber)));
+    }
+    if (monthsRange && Number.isFinite(months.valueAsNumber)) {
+      monthsRange.value = String(Math.min(parseFloat(monthsRange.max), Math.max(parseFloat(monthsRange.min), months.valueAsNumber)));
+    }
+    if (rateRange && Number.isFinite(rate.valueAsNumber)) {
+      rateRange.value = String(Math.min(parseFloat(rateRange.max), Math.max(parseFloat(rateRange.min), rate.valueAsNumber)));
+    }
+
+    updateSliderFill(depositRange);
+    updateSliderFill(monthsRange);
+    updateSliderFill(rateRange);
+
+    const invalid = [deposit, months, rate].find((input) => !input.validity.valid);
     if (invalid) {
       saved.textContent = invested.textContent = '—';
-      note.textContent = invalid.validationMessage;
+      if (gain) gain.textContent = '—';
+      if (gainPct) gainPct.textContent = 'Invalid input';
+      if (note) note.textContent = invalid.validationMessage;
       return;
     }
+
     const payment = deposit.valueAsNumber;
     const periods = months.valueAsNumber;
     const monthlyRate = rate.valueAsNumber / 1200;
     const factor = monthlyRate === 0 ? periods : Math.expm1(periods * Math.log1p(monthlyRate)) / monthlyRate;
-    saved.textContent = formatter.format(payment * periods);
-    invested.textContent = formatter.format(payment * factor);
-    if (event && invested.animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      for (const result of [saved, invested]) {
-        result.getAnimations().forEach(animation => animation.cancel());
-        result.animate([{ transform: 'translateY(4px)', opacity: .65 }, { transform: 'translateY(0)', opacity: 1 }],
-          { duration: 200, easing: 'ease-out' });
+    const totalSaved = payment * periods;
+    const totalInvested = payment * factor;
+    const netGain = totalInvested - totalSaved;
+    const pctGain = totalSaved > 0 ? (netGain / totalSaved) * 100 : 0;
+
+    saved.textContent = formatter.format(totalSaved);
+    invested.textContent = formatter.format(totalInvested);
+
+    if (gain) {
+      const sign = netGain >= 0 ? '+' : '−';
+      gain.textContent = `${sign}${formatter.format(Math.abs(netGain))}`;
+    }
+    if (gainPct) {
+      const arrow = netGain >= 0 ? '↗ +' : '↘ ';
+      gainPct.textContent = `${arrow}${pctGain.toFixed(1)}% growth`;
+      gainPct.classList.toggle('is-negative', netGain < 0);
+    }
+    if (durationLabel) durationLabel.textContent = formatDuration(periods);
+    if (chartEndLabel) chartEndLabel.textContent = `Month ${periods}`;
+
+    if (barPrincipal && barGrowth) {
+      if (totalInvested > 0 && netGain >= 0) {
+        const principalShare = Math.min(100, Math.max(0, (totalSaved / totalInvested) * 100));
+        barPrincipal.style.width = `${principalShare.toFixed(1)}%`;
+        barGrowth.style.width = `${(100 - principalShare).toFixed(1)}%`;
+      } else {
+        barPrincipal.style.width = '100%';
+        barGrowth.style.width = '0%';
       }
     }
-    note.textContent = assumptions;
+
+    renderChart(payment, periods, monthlyRate);
+
+    if (event && target !== depositRange && target !== monthsRange && target !== rateRange &&
+      invested.animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (const result of [saved, invested]) {
+        result.getAnimations().forEach((animation) => animation.cancel());
+        result.animate(
+          [{ transform: 'translateY(3px)', opacity: 0.7 }, { transform: 'translateY(0)', opacity: 1 }],
+          { duration: 180, easing: 'ease-out' }
+        );
+      }
+    }
+    if (note) note.textContent = assumptions;
   }
+
+  presets.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      presets.forEach((item) => item.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const baseUgx = parseFloat(btn.dataset.deposit) || 100000;
+      const scaled = Math.max(currentScale.min, Math.round((baseUgx * currentScale.scale) / currentScale.step) * currentScale.step);
+      deposit.value = String(scaled);
+      months.value = btn.dataset.months || '12';
+      rate.value = btn.dataset.rate || '8';
+      update({ target: btn });
+    });
+  });
+
   calculator.addEventListener('input', update);
-  setCurrency();
+  calculator.addEventListener('change', update);
+  setCurrency(false);
   update();
 }
 
@@ -79,6 +288,93 @@ function initProductTabs() {
   const section = document.querySelector('.product-feature');
   if (!section) return;
   const tabs = Array.from(section.querySelectorAll('[role="tab"]'));
+  const strip = document.querySelector('.deck-strip');
+  const pickerButtons = [...strip.querySelectorAll('.deck-picker button')];
+  const label = strip.querySelector('#deck-position');
+  const orbit = matchMedia('(prefers-reduced-motion: no-preference)');
+  const visibleDeck = () => strip.querySelector('.deck-window:not([hidden])');
+  function syncPicker() {
+    const deck = visibleDeck();
+    const cards = [...deck.querySelectorAll('li')];
+    let index = 0;
+    if (orbit.matches) {
+      const turn = cards[0].getAnimations().find(animation => animation.animationName === 'deck-orbit');
+      const progress = turn?.effect.getComputedTiming().progress || 0;
+      index = Math.round(progress * cards.length) % cards.length;
+    } else {
+      const distance = card => Math.abs(Math.max(0, Math.min(card.offsetLeft, deck.scrollWidth - deck.clientWidth)) - deck.scrollLeft);
+      index = cards.reduce((best, card, i) => distance(card) < distance(cards[best]) ? i : best, 0);
+    }
+    pickerButtons.forEach((button, i) => {
+      button.setAttribute('aria-current', String(i === index));
+      button.setAttribute('aria-label', 'Show ' + cards[i].querySelector('strong').textContent);
+    });
+    const name = cards[index].querySelector('strong').textContent;
+    label.textContent = (index + 1) + ' / ' + cards.length + ' · ' + name;
+  }
+  function pickCard(index) {
+    const deck = visibleDeck();
+    const cards = [...deck.querySelectorAll('li')];
+    if (orbit.matches) {
+      for (const card of cards) {
+        for (const animation of card.getAnimations()) {
+          if (animation.animationName?.startsWith('deck-')) {
+            animation.currentTime = index * animation.effect.getTiming().duration / cards.length;
+          }
+        }
+      }
+    } else {
+      deck.scrollTo({ left: cards[index].offsetLeft, behavior: 'instant' });
+    }
+    syncPicker();
+  }
+  pickerButtons.forEach((button, index) => {
+    button.addEventListener('click', () => pickCard(index));
+    button.addEventListener('keydown', event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const count = pickerButtons.length;
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? count - 1
+        : (index + (event.key === 'ArrowRight' ? 1 : -1) + count) % count;
+      pickerButtons[next].focus();
+      pickCard(next);
+    });
+  });
+  strip.querySelectorAll('.deck-window').forEach(deck => {
+    deck.addEventListener('scroll', syncPicker, { passive: true });
+    let touchStartX = 0;
+    let touchStartY = 0;
+    deck.addEventListener('touchstart', (e) => {
+      if (!e.touches || !e.touches.length) return;
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    deck.addEventListener('touchend', (e) => {
+      if (!orbit.matches || !e.changedTouches || !e.changedTouches.length) return;
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(dx) < 36 || Math.abs(dx) < Math.abs(dy)) return;
+      const currentIdx = pickerButtons.findIndex((b) => b.getAttribute('aria-current') === 'true');
+      const count = pickerButtons.length;
+      const base = currentIdx >= 0 ? currentIdx : 0;
+      const nextIdx = (base + (dx < 0 ? 1 : -1) + count) % count;
+      pickCard(nextIdx);
+    }, { passive: true });
+  });
+  orbit.addEventListener('change', syncPicker);
+  let timer;
+  if (strip) {
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        strip.classList.toggle('in-view', entry.isIntersecting);
+        clearInterval(timer);
+        if (entry.isIntersecting) {
+          syncPicker();
+          timer = setInterval(syncPicker, 500);
+        }
+      }).observe(strip);
+    }
+  }
   function select(tab) {
     section.dataset.product = tab.id;
     for (const item of tabs) {
@@ -86,7 +382,10 @@ function initProductTabs() {
       item.setAttribute('aria-selected', String(active));
       item.tabIndex = active ? 0 : -1;
       document.getElementById(item.getAttribute('aria-controls')).hidden = !active;
+      const deck = document.getElementById(item === tabs[0] ? 'deck-save' : 'deck-invest');
+      if (deck) deck.hidden = !active;
     }
+    syncPicker();
   }
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => select(tab));
@@ -104,7 +403,7 @@ function initHomepageStories() {
   const rail = document.querySelector('.story-rail');
   if (!rail) return;
   const [previous, next] = document.querySelectorAll('.story-arrows button');
-  const dots = [...document.querySelectorAll('.story-pager button')];
+  const dots = [...rail.closest('.audiences').querySelectorAll('.story-pager button')];
   let active = 0;
   function position(index) {
     const card = rail.children[index];
@@ -133,21 +432,31 @@ function initHomepageStories() {
   rail.addEventListener('scroll', updateArrows, { passive: true });
   window.addEventListener('resize', updateArrows);
   updateArrows();
-  rail.querySelectorAll('.story-photo').forEach(button => {
-    const expand = open => button.setAttribute('aria-expanded', String(open));
-    button.addEventListener('pointerenter', event => {
+  rail.querySelectorAll('.story-photo').forEach(card => {
+    const button = card.querySelector('.product-story-toggle');
+    const details = card.querySelector('.story-summary');
+    const expand = open => {
+      button.setAttribute('aria-expanded', String(open));
+      card.classList.toggle('is-expanded', open);
+      details.inert = !open;
+    };
+    card.addEventListener('pointerenter', event => {
       if (event.pointerType === 'mouse') expand(true);
     });
-    button.addEventListener('pointerleave', event => {
-      if (event.pointerType === 'mouse') expand(false);
+    card.addEventListener('pointerleave', event => {
+      if (event.pointerType === 'mouse' && !card.contains(document.activeElement)) expand(false);
     });
     button.addEventListener('focus', () => {
       if (button.matches(':focus-visible')) expand(true);
     });
-    button.addEventListener('blur', () => expand(false));
-    button.addEventListener('click', () => expand(button.getAttribute('aria-expanded') !== 'true'));
-    button.addEventListener('keydown', event => {
-      if (event.key === 'Escape') expand(false);
+    card.addEventListener('focusout', event => {
+      if (!card.contains(event.relatedTarget)) expand(false);
+    });
+    card.addEventListener('click', event => {
+      if (!event.target.closest('a')) expand(details.inert);
+    });
+    card.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { button.focus(); expand(false); }
     });
   });
   const filters = document.querySelectorAll('.voice-filters button');
@@ -781,8 +1090,8 @@ function initManifestoScrollReveal() {
   const totalWords = wordSpans.length;
   let ticking = false;
 
-  // Mobile uses a normal reading flow instead of another long sticky sequence.
-  if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) {
+  // Only skip sticky sequence on ultra-short landscape screens (< 520px height).
+  if (window.matchMedia && window.matchMedia('(max-height: 519px)').matches) {
     wordSpans.forEach((span) => {
       span.style.opacity = '1';
       span.style.transform = 'none';
@@ -1495,7 +1804,17 @@ function initGoalSaveCalculator() {
     return 'UGX ' + Math.round(num).toLocaleString('en-US');
   }
 
+  function syncSliderFill(slider) {
+    const min = parseFloat(slider.min) || 0;
+    const max = parseFloat(slider.max) || 100;
+    const val = Math.min(max, Math.max(min, parseFloat(slider.value) || min));
+    const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+    slider.style.setProperty('--slider-pct', `${pct.toFixed(1)}%`);
+  }
+
   function calculate() {
+    syncSliderFill(targetSlider);
+    syncSliderFill(monthsSlider);
     const target = parseFloat(targetSlider.value) || 15000000;
     const months = parseInt(monthsSlider.value, 10) || 12;
 
@@ -1615,4 +1934,132 @@ function playTickSound(freq = 580) {
     // Audio is optional enhancement
   }
 }
+
+/* ==========================================================================
+   12. SITEWIDE MOTION CHOREOGRAPHY (Scroll Reveals, Progress Bar & Spotlight)
+   ========================================================================== */
+function initSitewideMotion() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return;
+  }
 
+  // 1. Subtle top scroll progress bar (GPU scaleX)
+  let bar = document.querySelector('.scroll-progress-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.className = 'scroll-progress-bar';
+    bar.setAttribute('aria-hidden', 'true');
+    document.body.prepend(bar);
+  }
+
+  let progressTicking = false;
+  const updateProgress = () => {
+    const doc = document.documentElement;
+    const maxScroll = Math.max(doc.scrollHeight - window.innerHeight, 1);
+    const ratio = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+    bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+    progressTicking = false;
+  };
+  const requestProgress = () => {
+    if (progressTicking) return;
+    progressTicking = true;
+    window.requestAnimationFrame(updateProgress);
+  };
+  updateProgress();
+  window.addEventListener('scroll', requestProgress, { passive: true });
+  window.addEventListener('resize', requestProgress, { passive: true });
+
+  // 2. Calibrated scroll-reveal cascade across homepage & all subpages
+  const staggerContainers = [
+    '.products-deep-grid',
+    '.about-pillars-grid',
+    '.subpage-glass-grid',
+    '.governance-grid',
+    '.planner-shell',
+    '.interactive-calc-box',
+    '.contact-grid',
+    '.about-strategy-grid',
+    '.story-rail'
+  ];
+
+  const singleTargets = [
+    '.audiences header',
+    '.projection-heading',
+    '.subpage-section-head',
+    '.about-banner-card',
+    '.about-hq-card',
+    '.subpage-dark-band',
+    '.subpage-notice-card',
+    '.comparison-table-wrap'
+  ];
+
+  const revealNodes = new Set();
+
+  staggerContainers.forEach((selector) => {
+    document.querySelectorAll(selector).forEach((container) => {
+      Array.from(container.children).forEach((child, index) => {
+        if (child.nodeType !== 1) return;
+        const delay = (index % 3) * 85;
+        child.style.setProperty('--reveal-delay', `${delay}ms`);
+        child.classList.add('motion-reveal');
+        revealNodes.add(child);
+      });
+    });
+  });
+
+  singleTargets.forEach((selector) => {
+    document.querySelectorAll(selector).forEach((el) => {
+      if (!revealNodes.has(el)) {
+        el.classList.add('motion-reveal');
+        revealNodes.add(el);
+      }
+    });
+  });
+
+  document.documentElement.classList.add('motion-ready');
+
+  const revealEl = (el) => {
+    el.classList.add('is-revealed');
+  };
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          revealEl(entry.target);
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -6% 0px', threshold: 0.05 }
+    );
+
+    revealNodes.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.94) {
+        revealEl(el);
+      } else {
+        observer.observe(el);
+      }
+    });
+  } else {
+    revealNodes.forEach(revealEl);
+  }
+
+  // 3. Subtle cursor spotlight sheen on dark elevated surfaces (desktop fine pointer only)
+  if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const darkSurfaces = document.querySelectorAll(
+      '.planner-stage-col, .calc-results-col, .subpage-hero-card, .subpage-dark-band, .subpage-glass-tile'
+    );
+    darkSurfaces.forEach((surface) => {
+      surface.classList.add('motion-spotlight');
+      surface.addEventListener('pointermove', (event) => {
+        const rect = surface.getBoundingClientRect();
+        const x = ((event.clientX - rect.left) / rect.width) * 100;
+        const y = ((event.clientY - rect.top) / rect.height) * 100;
+        surface.style.setProperty('--spot-x', `${x.toFixed(1)}%`);
+        surface.style.setProperty('--spot-y', `${y.toFixed(1)}%`);
+      }, { passive: true });
+    });
+  }
+}
