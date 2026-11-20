@@ -1,10 +1,13 @@
 ﻿/**
- * LUMINARIES CAPITAL â€” INTERACTIVE ENGINE
+ * LUMINARIES CAPITAL — INTERACTIVE ENGINE
  * Implements 3D card parade, physics micro-demos, gauge simulation, and modal routing
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   initNavbar();
+  initHomepageStories();
+  initProductTabs();
+  initHeroCalculator();
   initHeroShader();
   initHeroScrollAnimation();
   initManifestoScrollReveal();
@@ -25,6 +28,138 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ========================================================================== 
    HERO SHADER — native canvas interpretation of the supplied ShaderGradient
    ========================================================================== */
+function initHeroCalculator() {
+  const calculator = document.querySelector('.hero-calculator');
+  if (!calculator) return;
+  const [deposit, months, rate] = calculator.querySelectorAll('input');
+  const saved = calculator.querySelector('#projection-saved');
+  const invested = calculator.querySelector('#projection-invested');
+  const note = calculator.querySelector('#projection-note');
+  const assumptions = note.textContent;
+  const denomination = calculator.querySelector('#projection-currency');
+  const unit = calculator.querySelector('#projection-unit');
+  let formatter;
+  function setCurrency() {
+    formatter = new Intl.NumberFormat(document.documentElement.lang || 'en', {
+      style: 'currency', currency: denomination.value, currencyDisplay: 'code'
+    });
+    const digits = formatter.resolvedOptions().maximumFractionDigits;
+    deposit.step = deposit.min = String(10 ** -digits);
+    unit.textContent = '(' + denomination.value + ')';
+  }
+  function update(event) {
+    if (event?.target === denomination) setCurrency();
+    const invalid = [deposit, months, rate].find(input => !input.validity.valid);
+    if (invalid) {
+      saved.textContent = invested.textContent = '—';
+      note.textContent = invalid.validationMessage;
+      return;
+    }
+    const payment = deposit.valueAsNumber;
+    const periods = months.valueAsNumber;
+    const monthlyRate = rate.valueAsNumber / 1200;
+    const factor = monthlyRate === 0 ? periods : Math.expm1(periods * Math.log1p(monthlyRate)) / monthlyRate;
+    saved.textContent = formatter.format(payment * periods);
+    invested.textContent = formatter.format(payment * factor);
+    if (event && invested.animate && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (const result of [saved, invested]) {
+        result.getAnimations().forEach(animation => animation.cancel());
+        result.animate([{ transform: 'translateY(4px)', opacity: .65 }, { transform: 'translateY(0)', opacity: 1 }],
+          { duration: 200, easing: 'ease-out' });
+      }
+    }
+    note.textContent = assumptions;
+  }
+  calculator.addEventListener('input', update);
+  setCurrency();
+  update();
+}
+
+function initProductTabs() {
+  const section = document.querySelector('.product-feature');
+  if (!section) return;
+  const tabs = Array.from(section.querySelectorAll('[role="tab"]'));
+  function select(tab) {
+    section.dataset.product = tab.id;
+    for (const item of tabs) {
+      const active = item === tab;
+      item.setAttribute('aria-selected', String(active));
+      item.tabIndex = active ? 0 : -1;
+      document.getElementById(item.getAttribute('aria-controls')).hidden = !active;
+    }
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', event => {
+      if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const target = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs[1] : tabs[1 - index];
+      select(target);
+      target.focus();
+    });
+  });
+}
+
+function initHomepageStories() {
+  const rail = document.querySelector('.story-rail');
+  if (!rail) return;
+  const [previous, next] = document.querySelectorAll('.story-arrows button');
+  const dots = [...document.querySelectorAll('.story-pager button')];
+  let active = 0;
+  function position(index) {
+    const card = rail.children[index];
+    return Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth,
+      card.offsetLeft + (card.offsetWidth - rail.clientWidth) / 2));
+  }
+  function go(index) {
+    rail.scrollTo({ left: position(index), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  }
+  function updateArrows() {
+    active = dots.reduce((nearest, _, i) => Math.abs(position(i) - rail.scrollLeft) <
+      Math.abs(position(nearest) - rail.scrollLeft) ? i : nearest, 0);
+    dots.forEach((dot, i) => dot.setAttribute('aria-current', String(i === active)));
+    Array.from(rail.children).forEach((card, i) => {
+      card.dataset.centered = String(i === active);
+    });
+    previous.disabled = rail.scrollLeft < 2;
+    next.disabled = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 2;
+  }
+  [previous, next].forEach((button, i) => {
+    button.addEventListener('click', () => {
+      go(Math.max(0, Math.min(dots.length - 1, active + (i ? 1 : -1))));
+    });
+  });
+  dots.forEach((dot, i) => dot.addEventListener('click', () => go(i)));
+  rail.addEventListener('scroll', updateArrows, { passive: true });
+  window.addEventListener('resize', updateArrows);
+  updateArrows();
+  rail.querySelectorAll('.story-photo').forEach(button => {
+    const expand = open => button.setAttribute('aria-expanded', String(open));
+    button.addEventListener('pointerenter', event => {
+      if (event.pointerType === 'mouse') expand(true);
+    });
+    button.addEventListener('pointerleave', event => {
+      if (event.pointerType === 'mouse') expand(false);
+    });
+    button.addEventListener('focus', () => {
+      if (button.matches(':focus-visible')) expand(true);
+    });
+    button.addEventListener('blur', () => expand(false));
+    button.addEventListener('click', () => expand(button.getAttribute('aria-expanded') !== 'true'));
+    button.addEventListener('keydown', event => {
+      if (event.key === 'Escape') expand(false);
+    });
+  });
+  const filters = document.querySelectorAll('.voice-filters button');
+  filters.forEach(button => button.addEventListener('click', () => {
+    filters.forEach(filter => {
+      const selected = filter === button;
+      filter.setAttribute('aria-pressed', String(selected));
+      document.getElementById(filter.getAttribute('aria-controls')).hidden = !selected;
+    });
+  }));
+}
+
 function initHeroShader() {
   const canvas = document.getElementById('hero-shader-canvas');
   const hero = document.getElementById('hero-scroll-track');
@@ -42,11 +177,17 @@ function initHeroShader() {
   let frameId = null;
   let lastFrame = 0;
   let isVisible = true;
+  let resumeDrawingAt = 0;
+  window.addEventListener('scroll', () => {
+    resumeDrawingAt = performance.now() + 180;
+  }, { passive: true });
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
-    width = Math.max(1, Math.round(rect.width));
-    height = Math.max(1, Math.round(rect.height));
+    // The soft background can be upscaled independently of the text and cards.
+    const scale = Math.min(1, 256 / Math.max(rect.width, rect.height, 1));
+    width = Math.max(1, Math.round(rect.width * scale));
+    height = Math.max(1, Math.round(rect.height * scale));
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
@@ -96,7 +237,7 @@ function initHeroShader() {
     ctx.translate(width / 2, height / 2);
     ctx.rotate(225 * Math.PI / 180);
     ctx.translate(-width / 2, -height / 2);
-    ctx.filter = 'blur(24px)';
+    ctx.filter = 'blur(' + Math.max(2, height * 0.03) + 'px)';
 
     for (let wave = 0; wave < 5; wave += 1) {
       const phase = time * 2 + wave * 1.25;
@@ -118,7 +259,7 @@ function initHeroShader() {
         y + Math.sin(phase * 0.64) * height * 0.1
       );
       ctx.strokeStyle = waveGradient;
-      ctx.lineWidth = Math.max(70, height * 0.2);
+      ctx.lineWidth = Math.max(1, height * 0.2);
       ctx.stroke();
     }
 
@@ -141,7 +282,7 @@ function initHeroShader() {
       frameId = null;
       return;
     }
-    if (now - lastFrame >= frameInterval) {
+    if (now >= resumeDrawingAt && now - lastFrame >= frameInterval) {
       draw(now);
       lastFrame = now;
     }
@@ -661,6 +802,7 @@ function initManifestoScrollReveal() {
   }
 
   function updateWords() {
+    section.classList.add('manifesto-tracking');
     const rect = section.getBoundingClientRect();
     const windowHeight = window.innerHeight;
     if (rect.bottom <= 0 || rect.top >= windowHeight) {
@@ -679,6 +821,8 @@ function initManifestoScrollReveal() {
     // 1 = section bottom reaches viewport bottom
     const scrolled = -rect.top;
     const progress = Math.min(Math.max(scrolled / totalScrollable, 0), 1);
+    const wordProgress = Math.min(progress / 0.82, 1.05);
+    section.classList.toggle('network-visible', progress >= 0.86);
 
     // Calculate each word's reveal
     const windowSize = 0.055; // Transition window per word
@@ -687,7 +831,7 @@ function initManifestoScrollReveal() {
       const span = wordSpans[i];
       const wordCenter = (i + 0.5) / totalWords;
       
-      const wordFraction = (progress - (wordCenter - windowSize)) / (windowSize * 1.5);
+      const wordFraction = (wordProgress - (wordCenter - windowSize)) / (windowSize * 1.5);
       const clampedFraction = Math.min(Math.max(wordFraction, 0), 1);
       
       // Interpolate opacity from 0.14 to 1.0
@@ -718,15 +862,15 @@ function initManifestoScrollReveal() {
 }
 
 /* ==========================================================================
-   2B. PLATFORM SCROLL STREAM & QUICK-JUMP TABS (HYBRID)
-   Gallery-white sticky stage: 6 cards glide across on scroll,
-   synced seamlessly with floating pill tabs and live counters.
+   2B. PLATFORM INTERACTIVE CAROUSEL (TABS & ARROW DRIVEN)
+   Pure white gallery stage: 6 cards glide smoothly horizontally,
+   navigated via the top tabs, bottom capsule arrow, capsule dots, or card clicks.
+   Zero scroll-jacking: page scrolls naturally!
    ========================================================================== */
 function initPlatformHybridScroll() {
-  const track = document.getElementById('platform-scroll-track');
   const viewport = document.getElementById('platform-cards-viewport');
   const stream = document.getElementById('platform-cards-stream');
-  if (!track || !stream) return;
+  if (!viewport || !stream) return;
 
   const cards = Array.from(stream.querySelectorAll('.platform-stream-card'));
   const pills = Array.from(document.querySelectorAll('.platform-nav-pill'));
@@ -739,25 +883,13 @@ function initPlatformHybridScroll() {
   const vehicleData = [
     { name: "Flex Save", link: "save.html#flex", ctaText: "Explore Flex Save" },
     { name: "Steady Save", link: "save.html#steady", ctaText: "Explore Steady Save" },
-    { name: "GoalSaveâ„¢", link: "save.html#goalsave", ctaText: "Launch GoalSaveâ„¢" },
+    { name: "GoalSave™", link: "save.html#goalsave", ctaText: "Launch GoalSave™" },
     { name: "Dollar Save", link: "save.html#usd", ctaText: "Explore Dollar Save" },
     { name: "Circle Pot", link: "save.html#circle", ctaText: "Explore Circle Pot" },
     { name: "Treasury Desk", link: "invest.html#institutional", ctaText: "Explore Treasury Desk" }
   ];
 
   let activeIndex = 0;
-  let ticking = false;
-  let cardStride = 0;
-  let maxStreamTranslate = 0;
-
-  function measurePlatformStream() {
-    if (window.innerWidth <= 900) return;
-    const cardWidth = cards[0]?.offsetWidth || 0;
-    const styles = window.getComputedStyle(stream);
-    const gap = parseFloat(styles.columnGap || styles.gap) || 32;
-    cardStride = cardWidth + gap;
-    maxStreamTranslate = (cards.length - 1) * cardStride;
-  }
 
   function updateActiveCard(index) {
     if (index < 0 || index >= cards.length) return;
@@ -766,40 +898,30 @@ function initPlatformHybridScroll() {
     // Update Card Focus States
     cards.forEach((card, i) => {
       const isActive = i === index;
-      if (isActive) {
-        card.classList.add('is-active');
-      } else {
-        card.classList.remove('is-active');
-      }
+      card.classList.toggle('is-active', isActive);
       card.setAttribute('aria-hidden', String(!isActive));
       card.inert = !isActive;
     });
 
     // Update Pill Tabs
     pills.forEach((pill, i) => {
-      if (i === index) {
-        pill.classList.add('is-active');
-        pill.setAttribute('aria-selected', 'true');
-        pill.setAttribute('tabindex', '0');
-        if (window.innerWidth <= 900) {
-          window.requestAnimationFrame(() => {
-            pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-          });
-        }
-      } else {
-        pill.classList.remove('is-active');
-        pill.setAttribute('aria-selected', 'false');
-        pill.setAttribute('tabindex', '-1');
+      const isActive = i === index;
+      pill.classList.toggle('is-active', isActive);
+      pill.setAttribute('aria-selected', String(isActive));
+      pill.setAttribute('tabindex', isActive ? '0' : '-1');
+      if (isActive && window.innerWidth <= 900) {
+        const strip = pill.parentElement;
+        const bounds = strip.getBoundingClientRect();
+        const tab = pill.getBoundingClientRect();
+        const offset = tab.left < bounds.left ? tab.left - bounds.left
+          : Math.max(0, tab.right - bounds.right);
+        if (offset) strip.scrollBy({ left: offset, behavior: 'instant' });
       }
     });
 
     // Update Apple Capsule Dots
     capsuleItems.forEach((dot, i) => {
-      if (i === index) {
-        dot.classList.add('is-active');
-      } else {
-        dot.classList.remove('is-active');
-      }
+      dot.classList.toggle('is-active', i === index);
     });
 
     // Update Footer Direct Link
@@ -811,114 +933,60 @@ function initPlatformHybridScroll() {
     }
   }
 
-  // Smooth Jump Helper
   function jumpToCard(targetIndex) {
     if (targetIndex < 0 || targetIndex >= cards.length) return;
-
-    if (window.innerWidth <= 900) {
-      // Mobile: smooth snap scroll into view
-      const targetCard = cards[targetIndex];
-      if (targetCard) {
-        targetCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        updateActiveCard(targetIndex);
-      }
-      return;
-    }
-
-    // Desktop: Smoothly scroll the window to the exact track position
-    const targetProgress = targetIndex / (cards.length - 1);
-    const scrollY = window.scrollY || window.pageYOffset;
-    const trackTop = track.getBoundingClientRect().top + scrollY;
-    const scrollableDist = track.offsetHeight - window.innerHeight;
-    const targetScrollY = Math.round(trackTop + (targetProgress * scrollableDist) + 2);
-
-    window.scrollTo({
-      top: targetScrollY,
-      behavior: 'smooth'
-    });
     updateActiveCard(targetIndex);
-  }
 
-  // Scroll Scrub Calculation (Desktop)
-  function handleScroll() {
-    // If mobile layout (cards stream is static/snap-scrolling), let observer handle it
+    // Calculate translation to center the target card directly in the viewport
+    const card = cards[targetIndex];
+    if (!card) return;
+
     if (window.innerWidth <= 900) {
-      ticking = false;
+      const bounds = viewport.getBoundingClientRect();
+      const selected = card.getBoundingClientRect();
+      viewport.scrollBy({
+        left: selected.left - bounds.left + (selected.width - bounds.width) / 2,
+        behavior: 'instant'
+      });
       return;
     }
 
-    const rect = track.getBoundingClientRect();
-    if (rect.bottom <= 0 || rect.top >= window.innerHeight) {
-      ticking = false;
-      return;
-    }
-    const scrollableDist = track.offsetHeight - window.innerHeight;
-    if (scrollableDist <= 0) {
-      ticking = false;
-      return;
-    }
-
-    const rawProgress = -rect.top / scrollableDist;
-    const progress = Math.min(Math.max(rawProgress, 0), 1);
-
-    // Compute exact horizontal offset so active card is centered in viewport
-    const currentX = -(progress * maxStreamTranslate);
-    stream.style.transform = `translateX(${currentX.toFixed(1)}px)`;
-
-    // Calculate which card is closest to center
-    const cardIndex = Math.min(Math.round(progress * (cards.length - 1)), cards.length - 1);
-    if (cardIndex !== activeIndex) {
-      updateActiveCard(cardIndex);
-    }
-
-    ticking = false;
+    const viewportWidth = viewport.offsetWidth;
+    const cardWidth = card.offsetWidth;
+    const cardLeft = card.offsetLeft;
+    const targetX = (viewportWidth / 2) - (cardLeft + cardWidth / 2);
+    stream.style.transform = `translate3d(${targetX.toFixed(1)}px, -50%, 0)`;
   }
 
-  function requestScrollTick() {
-    if (!ticking) {
-      window.requestAnimationFrame(handleScroll);
-      ticking = true;
-    }
-  }
-
-  window.addEventListener('scroll', requestScrollTick, { passive: true });
-  window.addEventListener('resize', () => {
-    measurePlatformStream();
-    handleScroll();
-  }, { passive: true });
-
-  // Quick-Jump: Clicking Pill tabs
-  pills.forEach((pill) => {
+  // Quick-Jump: Clicking Pill tabs above
+  pills.forEach((pill, idx) => {
     pill.addEventListener('click', (e) => {
       e.preventDefault();
-      const targetIndex = parseInt(pill.getAttribute('data-index') || '0', 10);
-      jumpToCard(targetIndex);
+      jumpToCard(idx);
     });
 
     pill.addEventListener('keydown', (event) => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
-      const currentIndex = pills.indexOf(pill);
-      let targetIndex = currentIndex;
-      if (event.key === 'ArrowRight') targetIndex = (currentIndex + 1) % pills.length;
-      if (event.key === 'ArrowLeft') targetIndex = (currentIndex - 1 + pills.length) % pills.length;
+      let targetIndex = activeIndex;
+      if (event.key === 'ArrowRight') targetIndex = (activeIndex + 1) % pills.length;
+      if (event.key === 'ArrowLeft') targetIndex = (activeIndex - 1 + pills.length) % pills.length;
       if (event.key === 'Home') targetIndex = 0;
       if (event.key === 'End') targetIndex = pills.length - 1;
-      pills[targetIndex].focus();
+      pills[targetIndex]?.focus({ preventScroll: true });
       jumpToCard(targetIndex);
     });
   });
 
   // Apple Capsule dots click
-  capsuleItems.forEach((dot) => {
+  capsuleItems.forEach((dot, idx) => {
     dot.addEventListener('click', (e) => {
       e.preventDefault();
-      const targetIndex = parseInt(dot.getAttribute('data-index') || '0', 10);
-      jumpToCard(targetIndex);
+      jumpToCard(idx);
     });
   });
 
-  // Apple Capsule Next Button click
+  // Apple Capsule Next Button click below (arrow)
   if (capsuleNextBtn) {
     capsuleNextBtn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -927,28 +995,27 @@ function initPlatformHybridScroll() {
     });
   }
 
-  // Mobile Swipe Observer: updates pills when user swipes cards
-  if ('IntersectionObserver' in window) {
-    const mobileObserver = new IntersectionObserver((entries) => {
-      if (window.innerWidth > 900) return;
-      entries.forEach(entry => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          const idx = parseInt(entry.target.getAttribute('data-index') || '0', 10);
-          updateActiveCard(idx);
-        }
-      });
-    }, {
-      root: viewport,
-      threshold: 0.55
+  // Clicking an inactive card directly brings it to center
+  cards.forEach((card, idx) => {
+    card.addEventListener('click', (e) => {
+      // If clicking inside a direct action link/button inside the card, let link work
+      if (e.target.closest('a') && idx === activeIndex) return;
+      if (idx !== activeIndex) {
+        e.preventDefault();
+        jumpToCard(idx);
+      }
     });
+  });
 
-    cards.forEach(card => mobileObserver.observe(card));
-  }
+  // On resize, ensure current card stays centered
+  window.addEventListener('resize', () => {
+    jumpToCard(activeIndex);
+  }, { passive: true });
 
-  // Initial calculation
-  measurePlatformStream();
-  handleScroll();
-  updateActiveCard(0);
+  // Initial centering
+  window.requestAnimationFrame(() => {
+    jumpToCard(0);
+  });
 }
 
 /* ==========================================================================
@@ -1289,7 +1356,7 @@ function initCoinDemo() {
 }
 
 /* ==========================================================================
-   5. TILE 4 MICRO-DEMO: GOALSAVEâ„¢ BUDGET GAUGE
+   5. TILE 4 MICRO-DEMO: GOALSAVE™ BUDGET GAUGE
    Animated semicircle arc reading "68% / Budget consumed" with interactive slider
    ========================================================================== */
 function initGoalSaveGauge() {
@@ -1336,10 +1403,10 @@ function initCurrencyToggle() {
       const curr = btn.getAttribute('data-currency');
       if (curr === 'USD') {
         if (display) display.textContent = '$2,500.00';
-        if (label) label.textContent = 'USD Yield: 8.4% APY Â· Daily Compounding';
+        if (label) label.textContent = 'USD Yield: 8.4% APY · Daily Compounding';
       } else {
         if (display) display.textContent = 'UGX 9,450,000';
-        if (label) label.textContent = 'UGX Treasury: 12.8% APY Â· Zero Hidden Fees';
+        if (label) label.textContent = 'UGX Treasury: 12.8% APY · Zero Hidden Fees';
       }
     });
   });
@@ -1363,7 +1430,7 @@ function initControlUI() {
 
   if (confirmBtn && statusBadge) {
     confirmBtn.addEventListener('click', () => {
-      confirmBtn.textContent = 'âœ“ Confirmed';
+      confirmBtn.textContent = '✓ Confirmed';
       confirmBtn.style.background = '#004D47';
       playTickSound(720);
       setTimeout(() => {
@@ -1397,7 +1464,7 @@ function initShowcaseParallax() {
 }
 
 /* ==========================================================================
-   9. GOALSAVEâ„¢ CALCULATOR ENGINE (for save.html)
+   9. GOALSAVE™ CALCULATOR ENGINE (for save.html)
    ========================================================================== */
 function initGoalSaveCalculator() {
   const targetSlider = document.getElementById('calc-target-slider');
@@ -1416,6 +1483,10 @@ function initGoalSaveCalculator() {
   const btnDaily = document.getElementById('btn-freq-daily');
 
   if (!targetSlider || !monthsSlider) return;
+  if (new URLSearchParams(window.location.search).get('example') === 'monthly') {
+    targetSlider.value = '1200000';
+    monthsSlider.value = '12';
+  }
 
   let frequency = 'monthly'; // 'monthly', 'weekly', 'daily'
   const ANNUAL_RATE = 0.085; // 8.5% p.a.
