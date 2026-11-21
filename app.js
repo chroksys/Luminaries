@@ -1,4 +1,4 @@
-﻿/**
+/**
  * LUMINARIES CAPITAL — INTERACTIVE ENGINE
  * Implements 3D card parade, physics micro-demos, gauge simulation, and modal routing
  */
@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initManifestoScrollReveal();
   initEditorialFooter();
   initGoalSaveCalculator();
+  initInvestSimulator();
+  initSaveAccordion();
+  initSaveWheel();
   initContactForm();
   initSitewideMotion();
 });
@@ -666,7 +669,7 @@ function initManifestoScrollReveal() {
 
   const rawText = textEl.textContent.trim();
   const words = rawText.split(/\s+/);
-  
+
   // Highlight keywords
   const brandKeywords = ['Luminaries', 'Capital', 'Africa', 'purpose', 'wealth'];
 
@@ -709,7 +712,7 @@ function initManifestoScrollReveal() {
       return;
     }
     const totalScrollable = rect.height - windowHeight;
-    
+
     if (totalScrollable <= 0) {
       ticking = false;
       return;
@@ -725,19 +728,19 @@ function initManifestoScrollReveal() {
 
     // Calculate each word's reveal
     const windowSize = 0.055; // Transition window per word
-    
+
     for (let i = 0; i < totalWords; i++) {
       const span = wordSpans[i];
       const wordCenter = (i + 0.5) / totalWords;
-      
+
       const wordFraction = (wordProgress - (wordCenter - windowSize)) / (windowSize * 1.5);
       const clampedFraction = Math.min(Math.max(wordFraction, 0), 1);
-      
+
       // Interpolate opacity from 0.14 to 1.0
       const currentOpacity = 0.14 + (0.86 * clampedFraction);
       span.style.opacity = currentOpacity.toFixed(3);
       span.style.transform = `translateY(${(2.5 * (1 - clampedFraction)).toFixed(1)}px)`;
-      
+
       if (clampedFraction >= 0.65) {
         span.classList.add('is-active');
       } else {
@@ -776,16 +779,31 @@ function initGoalSaveCalculator() {
   const resSubtext = document.getElementById('calc-res-subtext');
   const sumSaved = document.getElementById('calc-sum-saved');
   const estYield = document.getElementById('calc-est-yield');
+  const totalMaturity = document.getElementById('calc-total-maturity');
   const completionDate = document.getElementById('calc-completion-date');
+  const goalBadge = document.getElementById('calc-goal-badge');
+
+  const areaPath = document.getElementById('gs-area-path');
+  const basePath = document.getElementById('gs-base-path');
+  const yieldPath = document.getElementById('gs-yield-path');
+  const tipGlow = document.getElementById('gs-tip-glow');
+  const tipDot = document.getElementById('gs-tip-dot');
+  const chartMidLabel = document.getElementById('calc-chart-mid-label');
+  const chartEndLabel = document.getElementById('calc-chart-end-label');
+  const barPrincipal = document.getElementById('calc-bar-principal');
+  const barYield = document.getElementById('calc-bar-yield');
 
   const btnMonthly = document.getElementById('btn-freq-monthly');
   const btnWeekly = document.getElementById('btn-freq-weekly');
   const btnDaily = document.getElementById('btn-freq-daily');
+  const presetBtns = Array.from(document.querySelectorAll('.save-preset-btn'));
+  const cardPresetLinks = Array.from(document.querySelectorAll('.sa-cta[data-preset-target], .card-action-link[data-preset-target]'));
 
   if (!targetSlider || !monthsSlider) return;
   if (new URLSearchParams(window.location.search).get('example') === 'monthly') {
     targetSlider.value = '1200000';
     monthsSlider.value = '12';
+    if (goalBadge) goalBadge.textContent = 'School Fees';
   }
 
   let frequency = 'monthly'; // 'monthly', 'weekly', 'daily'
@@ -795,12 +813,79 @@ function initGoalSaveCalculator() {
     return 'UGX ' + Math.round(num).toLocaleString('en-US');
   }
 
+  function formatCompactUGX(num) {
+    if (num >= 1000000) {
+      const m = num / 1000000;
+      return `UGX ${m >= 10 ? m.toFixed(1) : m.toFixed(2)}M`;
+    }
+    return `UGX ${Math.round(num / 1000)}k`;
+  }
+
   function syncSliderFill(slider) {
     const min = parseFloat(slider.min) || 0;
     const max = parseFloat(slider.max) || 100;
     const val = Math.min(max, Math.max(min, parseFloat(slider.value) || min));
     const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
     slider.style.setProperty('--slider-pct', `${pct.toFixed(1)}%`);
+  }
+
+  function renderChart(target, months) {
+    if (!areaPath || !basePath || !yieldPath) return;
+    const monthlyRate = ANNUAL_RATE / 12;
+    const monthlyDeposit = target / months;
+    const steps = Math.max(6, Math.min(months, 24));
+    const basePts = [];
+    const yieldPts = [];
+
+    let maxVal = 1;
+    for (let i = 0; i <= steps; i++) {
+      const m = (i / steps) * months;
+      const principal = monthlyDeposit * m;
+      const compounded = monthlyRate > 0
+        ? monthlyDeposit * ((Math.pow(1 + monthlyRate, m) - 1) / monthlyRate)
+        : principal;
+      basePts.push({ t: i / steps, v: principal });
+      yieldPts.push({ t: i / steps, v: compounded });
+      if (compounded > maxVal) maxVal = compounded;
+    }
+
+    const W = 420;
+    const H = 118;
+    const padX = 8;
+    const padTop = 14;
+    const padBot = 10;
+    const plotW = W - padX * 2;
+    const plotH = H - padTop - padBot;
+
+    const toXY = (pt) => [
+      +(padX + pt.t * plotW).toFixed(1),
+      +(H - padBot - (pt.v / maxVal) * plotH).toFixed(1)
+    ];
+
+    const bCoords = basePts.map(toXY);
+    const yCoords = yieldPts.map(toXY);
+
+    const baseD = bCoords.map((c, idx) => `${idx === 0 ? 'M' : 'L'}${c[0]} ${c[1]}`).join(' ');
+    const yieldD = yCoords.map((c, idx) => `${idx === 0 ? 'M' : 'L'}${c[0]} ${c[1]}`).join(' ');
+    const lastY = yCoords[yCoords.length - 1];
+    const firstY = yCoords[0];
+    const areaD = `${yieldD} L${lastY[0]} ${H - padBot} L${firstY[0]} ${H - padBot} Z`;
+
+    basePath.setAttribute('d', baseD);
+    yieldPath.setAttribute('d', yieldD);
+    areaPath.setAttribute('d', areaD);
+
+    if (tipGlow && tipDot) {
+      tipGlow.setAttribute('cx', lastY[0]);
+      tipGlow.setAttribute('cy', lastY[1]);
+      tipDot.setAttribute('cx', lastY[0]);
+      tipDot.setAttribute('cy', lastY[1]);
+    }
+
+    const finalYieldTotal = yieldPts[yieldPts.length - 1].v;
+    if (chartMidLabel) chartMidLabel.textContent = `Month ${Math.max(1, Math.round(months / 2))}`;
+    if (chartEndLabel) chartEndLabel.textContent = `Month ${months} · ${formatCompactUGX(finalYieldTotal)}`;
+    return Math.max(0, finalYieldTotal - target);
   }
 
   function calculate() {
@@ -823,12 +908,24 @@ function initGoalSaveCalculator() {
     }
 
     const requiredContribution = target / periods;
-    const estInterest = target * (ANNUAL_RATE * (months / 12)) * 0.55;
+    const chartYield = renderChart(target, months);
+    const estInterest = typeof chartYield === 'number'
+      ? chartYield
+      : target * (ANNUAL_RATE * (months / 12)) * 0.55;
+    const projectedTotal = target + estInterest;
 
     resAmount.textContent = formatUGX(requiredContribution);
     resSubtext.textContent = `${periodText} over ${months} months`;
     sumSaved.textContent = formatUGX(target);
     estYield.textContent = `+${formatUGX(estInterest)}`;
+    if (totalMaturity) totalMaturity.textContent = formatUGX(projectedTotal);
+
+    if (barPrincipal && barYield && projectedTotal > 0) {
+      const pPct = (target / projectedTotal) * 100;
+      const yPct = Math.max(2.5, 100 - pPct);
+      barPrincipal.style.width = `${(100 - yPct).toFixed(1)}%`;
+      barYield.style.width = `${yPct.toFixed(1)}%`;
+    }
 
     const targetDate = new Date();
     targetDate.setMonth(targetDate.getMonth() + months);
@@ -836,12 +933,40 @@ function initGoalSaveCalculator() {
     completionDate.textContent = `${monthNames[targetDate.getMonth()]} ${targetDate.getFullYear()}`;
   }
 
+  function applyPreset(target, months, label) {
+    targetSlider.value = String(target);
+    monthsSlider.value = String(months);
+    if (goalBadge && label) goalBadge.textContent = label;
+    presetBtns.forEach((btn) => {
+      const matches = btn.dataset.presetTarget === String(target) && btn.dataset.presetMonths === String(months);
+      btn.classList.toggle('is-active', matches);
+    });
+    calculate();
+    playTickSound(540);
+  }
+
+  presetBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      applyPreset(btn.dataset.presetTarget, btn.dataset.presetMonths, btn.dataset.presetLabel);
+    });
+  });
+
+  cardPresetLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      applyPreset(link.dataset.presetTarget, link.dataset.presetMonths, link.dataset.presetLabel);
+    });
+  });
+
   targetSlider.addEventListener('input', () => {
+    presetBtns.forEach(b => b.classList.remove('is-active'));
+    if (goalBadge) goalBadge.textContent = 'Custom Goal';
     calculate();
     playTickSound(380);
   });
 
   monthsSlider.addEventListener('input', () => {
+    presetBtns.forEach(b => b.classList.remove('is-active'));
+    if (goalBadge) goalBadge.textContent = 'Custom Goal';
     calculate();
     playTickSound(440);
   });
@@ -877,10 +1002,591 @@ function initGoalSaveCalculator() {
   calculate();
 }
 
+function initInvestSimulator() {
+  const amountSlider = document.getElementById('inv-amount-slider');
+  const monthsSlider = document.getElementById('inv-months-slider');
+  if (!amountSlider || !monthsSlider) return;
+
+  const amountVal = document.getElementById('inv-amount-val');
+  const monthsVal = document.getElementById('inv-months-val');
+  const minLabel = document.getElementById('inv-min-label');
+  const maxLabel = document.getElementById('inv-max-label');
+  const modeLabel = document.getElementById('inv-mode-label');
+  const assetBadge = document.getElementById('inv-asset-badge');
+  const projectedVal = document.getElementById('inv-projected-val');
+  const gainSubtext = document.getElementById('inv-gain-subtext');
+  const principalVal = document.getElementById('inv-principal-val');
+  const returnVal = document.getElementById('inv-return-val');
+  const rateVal = document.getElementById('inv-rate-val');
+  const riskVal = document.getElementById('inv-risk-val');
+
+  const areaPath = document.getElementById('inv-area-path');
+  const basePath = document.getElementById('inv-base-path');
+  const yieldPath = document.getElementById('inv-yield-path');
+  const tipGlow = document.getElementById('inv-tip-glow');
+  const tipDot = document.getElementById('inv-tip-dot');
+  const midLabel = document.getElementById('inv-chart-mid-label');
+  const endLabel = document.getElementById('inv-chart-end-label');
+
+  const btnCompound = document.getElementById('btn-inv-compound');
+  const btnIncome = document.getElementById('btn-inv-income');
+  const presetBtns = Array.from(document.querySelectorAll('#invest-sim-box [data-invest-preset]'));
+  const deckPresetLinks = Array.from(document.querySelectorAll('.sa-cta[data-invest-preset]'));
+
+  const presets = {
+    treasury: {
+      label: 'Treasury',
+      rate: 0.125,
+      rateText: '12.5% p.a.',
+      risk: 'Low · Sovereign',
+      currency: 'UGX',
+      min: 500000,
+      max: 100000000,
+      step: 500000,
+      def: 10000000,
+      minTxt: 'UGX 500k',
+      maxTxt: 'UGX 100M'
+    },
+    funds: {
+      label: 'Unit Trusts',
+      rate: 0.105,
+      rateText: '10.5% p.a.',
+      risk: 'Low–Mod · CMA',
+      currency: 'UGX',
+      min: 500000,
+      max: 100000000,
+      step: 500000,
+      def: 10000000,
+      minTxt: 'UGX 500k',
+      maxTxt: 'UGX 100M'
+    },
+    usd: {
+      label: 'USD Income',
+      rate: 0.055,
+      rateText: '5.5% p.a.',
+      risk: 'Low–Mod · USD',
+      currency: 'USD',
+      min: 1000,
+      max: 50000,
+      step: 500,
+      def: 5000,
+      minTxt: 'USD 1k',
+      maxTxt: 'USD 50k'
+    },
+    global: {
+      label: 'Global ETFs',
+      rate: 0.09,
+      rateText: '9.0% p.a.',
+      risk: 'Moderate · Equity',
+      currency: 'USD',
+      min: 1000,
+      max: 50000,
+      step: 500,
+      def: 5000,
+      minTxt: 'USD 1k',
+      maxTxt: 'USD 50k'
+    }
+  };
+
+  let activeKey = 'treasury';
+  let compound = true;
+
+  function formatMoney(num, currency) {
+    return currency === 'USD'
+      ? '$' + Math.round(num).toLocaleString('en-US')
+      : 'UGX ' + Math.round(num).toLocaleString('en-US');
+  }
+
+  function syncFill(slider) {
+    const min = parseFloat(slider.min) || 0;
+    const max = parseFloat(slider.max) || 100;
+    const val = Math.min(max, Math.max(min, parseFloat(slider.value) || min));
+    const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+    slider.style.setProperty('--slider-pct', `${pct.toFixed(1)}%`);
+  }
+
+  function renderChart(principal, months, annualRate) {
+    if (!areaPath || !basePath || !yieldPath) return;
+    const steps = 20;
+    const pts = [];
+    const basePts = [];
+    let maxVal = principal;
+
+    for (let i = 0; i <= steps; i++) {
+      const m = (i / steps) * months;
+      const val = compound
+        ? principal * Math.pow(1 + annualRate / 12, m)
+        : principal * (1 + annualRate * (m / 12));
+      pts.push({ t: i / steps, v: val });
+      basePts.push({ t: i / steps, v: principal });
+      if (val > maxVal) maxVal = val;
+    }
+
+    const minVal = principal * 0.88;
+    const span = Math.max(1, maxVal - minVal);
+    const W = 420;
+    const H = 118;
+    const padX = 8;
+    const padTop = 14;
+    const padBot = 10;
+    const plotW = W - padX * 2;
+    const plotH = H - padTop - padBot;
+
+    const toXY = (pt) => [
+      +(padX + pt.t * plotW).toFixed(1),
+      +(H - padBot - ((pt.v - minVal) / span) * plotH).toFixed(1)
+    ];
+
+    const bCoords = basePts.map(toXY);
+    const yCoords = pts.map(toXY);
+    const baseD = bCoords.map((c, i) => `${i === 0 ? 'M' : 'L'}${c[0]} ${c[1]}`).join(' ');
+    const yieldD = yCoords.map((c, i) => `${i === 0 ? 'M' : 'L'}${c[0]} ${c[1]}`).join(' ');
+    const lastY = yCoords[yCoords.length - 1];
+    const firstY = yCoords[0];
+    const areaD = `${yieldD} L${lastY[0]} ${H - padBot} L${firstY[0]} ${H - padBot} Z`;
+
+    basePath.setAttribute('d', baseD);
+    yieldPath.setAttribute('d', yieldD);
+    areaPath.setAttribute('d', areaD);
+
+    if (tipGlow && tipDot) {
+      tipGlow.setAttribute('cx', lastY[0]);
+      tipGlow.setAttribute('cy', lastY[1]);
+      tipDot.setAttribute('cx', lastY[0]);
+      tipDot.setAttribute('cy', lastY[1]);
+    }
+  }
+
+  function calculate() {
+    const cfg = presets[activeKey] || presets.treasury;
+    syncFill(amountSlider);
+    syncFill(monthsSlider);
+
+    const principal = parseFloat(amountSlider.value) || cfg.def;
+    const months = parseInt(monthsSlider.value, 10) || 12;
+    const total = compound
+      ? principal * Math.pow(1 + cfg.rate / 12, months)
+      : principal * (1 + cfg.rate * (months / 12));
+    const gain = Math.max(0, total - principal);
+    const pctGain = principal > 0 ? (gain / principal) * 100 : 0;
+
+    if (amountVal) amountVal.textContent = formatMoney(principal, cfg.currency);
+    if (monthsVal) {
+      monthsVal.textContent = months >= 12 && months % 12 === 0
+        ? `${months / 12} Year${months > 12 ? 's' : ''}`
+        : `${months} Months`;
+    }
+    if (assetBadge) assetBadge.textContent = `${cfg.label} · ${cfg.rateText}`;
+    if (projectedVal) projectedVal.textContent = formatMoney(total, cfg.currency);
+    if (gainSubtext) gainSubtext.textContent = `+${formatMoney(gain, cfg.currency)} indicative`;
+    if (principalVal) principalVal.textContent = formatMoney(principal, cfg.currency);
+    if (returnVal) returnVal.textContent = `+${formatMoney(gain, cfg.currency)}`;
+    if (rateVal) rateVal.textContent = cfg.rateText;
+    if (riskVal) riskVal.textContent = cfg.risk;
+    if (midLabel) midLabel.textContent = `Month ${Math.max(1, Math.round(months / 2))}`;
+    if (endLabel) endLabel.textContent = `Month ${months} · +${pctGain.toFixed(1)}%`;
+
+    renderChart(principal, months, cfg.rate);
+  }
+
+  function selectPreset(key, sound = true) {
+    if (!presets[key]) return;
+    const prevCurrency = presets[activeKey].currency;
+    activeKey = key;
+    const cfg = presets[key];
+
+    if (cfg.currency !== prevCurrency) {
+      amountSlider.min = String(cfg.min);
+      amountSlider.max = String(cfg.max);
+      amountSlider.step = String(cfg.step);
+      amountSlider.value = String(cfg.def);
+      if (minLabel) minLabel.textContent = cfg.minTxt;
+      if (maxLabel) maxLabel.textContent = cfg.maxTxt;
+    }
+
+    presetBtns.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.investPreset === key));
+    calculate();
+    if (sound) playTickSound(520);
+  }
+
+  presetBtns.forEach((btn) => {
+    btn.addEventListener('click', () => selectPreset(btn.dataset.investPreset, true));
+  });
+
+  deckPresetLinks.forEach((link) => {
+    link.addEventListener('click', () => selectPreset(link.dataset.investPreset, true));
+  });
+
+  amountSlider.addEventListener('input', () => {
+    calculate();
+    playTickSound(380);
+  });
+
+  monthsSlider.addEventListener('input', () => {
+    calculate();
+    playTickSound(440);
+  });
+
+  if (btnCompound && btnIncome) {
+    btnCompound.addEventListener('click', () => {
+      compound = true;
+      btnCompound.classList.add('active');
+      btnIncome.classList.remove('active');
+      if (modeLabel) modeLabel.textContent = 'Compounded';
+      calculate();
+      playTickSound(520);
+    });
+    btnIncome.addEventListener('click', () => {
+      compound = false;
+      btnIncome.classList.add('active');
+      btnCompound.classList.remove('active');
+      if (modeLabel) modeLabel.textContent = 'Simple Payout';
+      calculate();
+      playTickSound(520);
+    });
+  }
+
+  calculate();
+}
+
+function initSaveAccordion() {
+  const accordion = document.getElementById('save-accordion');
+  if (!accordion) return;
+
+  const panels = Array.from(accordion.querySelectorAll('.sa-panel'));
+  if (!panels.length) return;
+
+  function activatePanel(targetPanel, playSound = true) {
+    if (!targetPanel || targetPanel.classList.contains('is-active')) return;
+    panels.forEach((panel) => {
+      const isActive = panel === targetPanel;
+      panel.classList.toggle('is-active', isActive);
+      const btn = panel.querySelector('.sa-toggle-btn');
+      if (btn) btn.setAttribute('aria-expanded', String(isActive));
+    });
+    if (playSound) playTickSound(480);
+  }
+
+  panels.forEach((panel, idx) => {
+    const btn = panel.querySelector('.sa-toggle-btn');
+
+    panel.addEventListener('click', (event) => {
+      if (event.target.closest('a.sa-cta')) return;
+      activatePanel(panel, true);
+    });
+
+    if (btn) {
+      btn.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          const next = panels[(idx + 1) % panels.length];
+          activatePanel(next, true);
+          next.querySelector('.sa-toggle-btn')?.focus();
+        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          const prev = panels[(idx - 1 + panels.length) % panels.length];
+          activatePanel(prev, true);
+          prev.querySelector('.sa-toggle-btn')?.focus();
+        }
+      });
+    }
+  });
+
+  function syncFromHash() {
+    const id = window.location.hash.replace('#', '');
+    if (!id) return;
+    const match = panels.find((p) => p.id === id);
+    if (match) activatePanel(match, false);
+  }
+
+  syncFromHash();
+  window.addEventListener('hashchange', syncFromHash);
+}
+
+function initSaveWheel() {
+  const section = document.querySelector('#how-it-works, [data-scroll-story]');
+  const sticky = document.getElementById('save-wheel-sticky');
+  const stage = document.getElementById('save-wheel-stage');
+  if (!section || !stage) return;
+
+  const progressBar = document.getElementById('save-wheel-progress-bar');
+  const slides = Array.from(stage.querySelectorAll('.save-story-slide[data-wheel-step]'));
+  const tabs = Array.from(stage.querySelectorAll('.save-story-tab[data-wheel-step]'));
+  const panels = Array.from(stage.querySelectorAll('.save-wheel-panel[data-wheel-step]'));
+
+  let activeIndex = 0;
+  let ticking = false;
+
+  function getScrollMetrics() {
+    const rect = section.getBoundingClientRect();
+    const stickyTop = sticky ? parseFloat(getComputedStyle(sticky).top) || 84 : 84;
+    const stickyH = sticky ? sticky.offsetHeight : window.innerHeight * 0.7;
+    const totalScrollable = Math.max(0, section.offsetHeight - stickyH);
+    const scrolled = stickyTop - rect.top;
+    return { rect, stickyTop, totalScrollable, scrolled };
+  }
+
+  function applyState(progress, forcedIndex = null) {
+    const p = Math.min(1, Math.max(0, progress));
+
+    if (progressBar) {
+      const fill = (1 / 3) + (2 / 3) * p;
+      progressBar.style.transform = `scaleX(${fill.toFixed(4)})`;
+    }
+
+    const idx = forcedIndex !== null
+      ? forcedIndex
+      : (p < 0.33 ? 0 : p < 0.72 ? 1 : 2);
+
+    if (idx !== activeIndex || forcedIndex !== null) {
+      activeIndex = idx;
+      slides.forEach((slide, i) => slide.classList.toggle('is-active', i === idx));
+      tabs.forEach((tab, i) => {
+        const active = i === idx;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-selected', String(active));
+      });
+      panels.forEach((panel, i) => panel.classList.toggle('is-active', i === idx));
+    }
+  }
+
+  function isStaticMode() {
+    return (
+      (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ||
+      window.innerHeight <= 540
+    );
+  }
+
+  function updateFromScroll() {
+    ticking = false;
+    if (isStaticMode()) return;
+
+    const { totalScrollable, scrolled } = getScrollMetrics();
+    if (totalScrollable <= 40) return;
+
+    const progress = Math.min(1, Math.max(0, scrolled / totalScrollable));
+    applyState(progress);
+  }
+
+  function requestTick() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(updateFromScroll);
+  }
+
+  function goToStep(stepIdx) {
+    const targetProgress = stepIdx === 0 ? 0 : stepIdx === 1 ? 0.5 : 1;
+    playTickSound(500);
+
+    if (isStaticMode()) {
+      applyState(targetProgress, stepIdx);
+      return;
+    }
+
+    const { rect, stickyTop, totalScrollable } = getScrollMetrics();
+    if (totalScrollable > 40) {
+      const sectionStartScrollY = window.scrollY + rect.top - stickyTop;
+      const targetY = sectionStartScrollY + totalScrollable * targetProgress;
+      window.scrollTo({ top: targetY, behavior: 'smooth' });
+    } else {
+      applyState(targetProgress, stepIdx);
+    }
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const stepIdx = parseInt(tab.dataset.wheelStep, 10) || 0;
+      goToStep(stepIdx);
+    });
+  });
+
+  window.addEventListener('scroll', requestTick, { passive: true });
+  window.addEventListener('resize', requestTick, { passive: true });
+  applyState(0, 0);
+  updateFromScroll();
+}
+
 /* ==========================================================================
    10. CONTACT FORM HANDLER (for contact.html)
    ========================================================================== */
 function initContactForm() {
+  const topicCards = Array.from(document.querySelectorAll('.cdesk-topic-card[data-topic-value], .contact-topic-pill[data-topic-value]'));
+  const tierInput = document.getElementById('inquiry-tier');
+  const messageField = document.getElementById('inquiry-message');
+  const charCount = document.getElementById('cdesk-char-count');
+
+  const volumePills = Array.from(document.querySelectorAll('.cdesk-volume-pill[data-volume-value]'));
+  const scaleInput = document.getElementById('portfolio-scale');
+
+  const stepPanes = Array.from(document.querySelectorAll('.cdesk-step-pane[data-step-pane]'));
+  const stepTabs = Array.from(document.querySelectorAll('.cdesk-step-tab[data-step-nav]'));
+  const stepperFill = document.getElementById('cdesk-stepper-fill');
+  const stepperWrap = document.getElementById('cdesk-stepper');
+  const sumTopic = document.getElementById('cdesk-sum-topic');
+  const sumVolume = document.getElementById('cdesk-sum-volume');
+  const sumContact = document.getElementById('cdesk-sum-contact');
+
+  let currentStep = 1;
+
+  const syncSummary = () => {
+    const activeTopic = topicCards.find((c) => c.classList.contains('is-active'));
+    const activeVol = volumePills.find((p) => p.classList.contains('is-active'));
+    const fullName = document.getElementById('full-name')?.value?.trim();
+    const email = document.getElementById('email-addr')?.value?.trim();
+    if (sumTopic && activeTopic) {
+      sumTopic.textContent = activeTopic.dataset.topicLabel || activeTopic.dataset.topicValue || 'Personal Savings';
+    }
+    if (sumVolume && activeVol) {
+      sumVolume.textContent = activeVol.dataset.volumeLabel || activeVol.dataset.volumeValue || 'UGX 1M–10M';
+    }
+    if (sumContact) {
+      sumContact.textContent = fullName || email || 'Not entered';
+    }
+  };
+
+  const validateStep = (stepNum) => {
+    if (stepNum === 2) {
+      const fields = [
+        document.getElementById('full-name'),
+        document.getElementById('email-addr'),
+        document.getElementById('phone-number')
+      ].filter(Boolean);
+      for (const field of fields) {
+        if (!field.checkValidity()) {
+          field.reportValidity();
+          field.focus();
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
+  const goToStep = (targetStep, skipValidation = false) => {
+    const next = Math.max(1, Math.min(3, Number(targetStep) || 1));
+    if (!skipValidation && next > currentStep) {
+      for (let s = currentStep; s < next; s++) {
+        if (!validateStep(s)) return;
+      }
+    }
+    currentStep = next;
+    stepPanes.forEach((pane) => {
+      const isMatch = Number(pane.dataset.stepPane) === currentStep;
+      pane.hidden = !isMatch;
+      pane.classList.toggle('is-active', isMatch);
+    });
+    stepTabs.forEach((tab) => {
+      const n = Number(tab.dataset.stepNav);
+      tab.classList.toggle('is-active', n === currentStep);
+      tab.classList.toggle('is-done', n < currentStep);
+      if (n === currentStep) {
+        tab.setAttribute('aria-current', 'step');
+      } else {
+        tab.removeAttribute('aria-current');
+      }
+    });
+    if (stepperFill) {
+      stepperFill.style.width = `${(currentStep / 3) * 100}%`;
+    }
+    syncSummary();
+    playTickSound(460 + currentStep * 45);
+  };
+
+  if (stepPanes.length) {
+    document.querySelectorAll('[data-step-next]').forEach((btn) => {
+      btn.addEventListener('click', () => goToStep(btn.dataset.stepNext));
+    });
+    document.querySelectorAll('[data-step-prev]').forEach((btn) => {
+      btn.addEventListener('click', () => goToStep(btn.dataset.stepPrev, true));
+    });
+    document.querySelectorAll('[data-step-nav]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = Number(btn.dataset.stepNav);
+        goToStep(target, target < currentStep);
+      });
+    });
+    syncSummary();
+  }
+
+  if (topicCards.length && tierInput) {
+    topicCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        const val = card.dataset.topicValue;
+        tierInput.value = val;
+        topicCards.forEach((c) => {
+          const active = c === card;
+          c.classList.toggle('is-active', active);
+          if (c.hasAttribute('aria-checked')) c.setAttribute('aria-checked', String(active));
+        });
+        if (messageField && card.dataset.placeholder) {
+          messageField.placeholder = card.dataset.placeholder;
+        }
+        syncSummary();
+        playTickSound(520);
+      });
+    });
+  }
+
+  if (volumePills.length && scaleInput) {
+    volumePills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        scaleInput.value = pill.dataset.volumeValue;
+        volumePills.forEach((p) => {
+          const active = p === pill;
+          p.classList.toggle('is-active', active);
+          p.setAttribute('aria-checked', String(active));
+        });
+        syncSummary();
+        playTickSound(480);
+      });
+    });
+  }
+
+  if (messageField && charCount) {
+    const maxLen = parseInt(messageField.getAttribute('maxlength') || '600', 10);
+    const syncCount = () => {
+      charCount.textContent = `${messageField.value.length} / ${maxLen}`;
+    };
+    messageField.addEventListener('input', syncCount);
+    syncCount();
+  }
+
+  const copyBtns = Array.from(document.querySelectorAll('.cdesk-copy-btn[data-copy]'));
+  copyBtns.forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy;
+      if (!text) return;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        }
+      } catch (_) {}
+      const prev = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      btn.classList.add('is-copied');
+      playTickSound(640);
+      setTimeout(() => {
+        btn.textContent = prev;
+        btn.classList.remove('is-copied');
+      }, 1800);
+    });
+  });
+
+  const resetBtn = document.getElementById('cdesk-reset-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      const form = document.getElementById('contact-form-elem');
+      const successMsg = document.getElementById('contact-success-msg');
+      if (successMsg) successMsg.style.display = 'none';
+      if (stepperWrap) stepperWrap.style.display = '';
+      if (form) {
+        form.style.display = '';
+        if (charCount) charCount.textContent = '0 / 600';
+      }
+      if (stepPanes.length) goToStep(1, true);
+    });
+  }
+
   window.handleContactSubmit = async function () {
     const form = document.getElementById('contact-form-elem');
     const successMsg = document.getElementById('contact-success-msg');
@@ -905,10 +1611,10 @@ function initContactForm() {
       _captcha: 'false'
     };
 
-    const originalText = submitLabel ? submitLabel.textContent : 'Submit Inquiry & Connect with an Advisor';
+    const originalText = submitLabel ? submitLabel.textContent : 'Send inquiry to Kampala desk';
     if (errorMsg) errorMsg.style.display = 'none';
     if (submitBtn) submitBtn.disabled = true;
-    if (submitLabel) submitLabel.textContent = 'Sending inquiry...';
+    if (submitLabel) submitLabel.textContent = 'Encrypting & routing inquiry...';
 
     try {
       const response = await fetch('https://formsubmit.co/ajax/christianokitovs@gmail.com', {
@@ -922,7 +1628,27 @@ function initContactForm() {
 
       if (!response.ok) throw new Error('Submission failed');
 
+      const refEl = document.getElementById('cdesk-success-ref');
+      const catEl = document.getElementById('cdesk-receipt-category');
+      const emailEl = document.getElementById('cdesk-receipt-email');
+      if (refEl) {
+        const code = String(Math.floor(1000 + Math.random() * 9000));
+        refEl.textContent = `REF · LC-2026-${code}`;
+      }
+      if (catEl) catEl.textContent = payload.category || 'Advisory Desk';
+      if (emailEl) emailEl.textContent = payload.email || '—';
+
       form.reset();
+      if (tierInput && topicCards.length) {
+        const activeCard = topicCards.find((c) => c.classList.contains('is-active')) || topicCards[0];
+        tierInput.value = activeCard.dataset.topicValue || '';
+      }
+      if (scaleInput && volumePills.length) {
+        const activeVol = volumePills.find((p) => p.classList.contains('is-active')) || volumePills[0];
+        scaleInput.value = activeVol.dataset.volumeValue || '';
+      }
+      if (charCount) charCount.textContent = '0 / 600';
+      if (stepperWrap) stepperWrap.style.display = 'none';
       form.style.display = 'none';
       successMsg.style.display = 'block';
       successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -975,7 +1701,8 @@ function playTickSound(freq = 580) {
     // Audio is optional enhancement
   }
 }
-
+
+
 /* ==========================================================================
    12. SITEWIDE MOTION CHOREOGRAPHY (Scroll Reveals, Progress Bar & Spotlight)
    ========================================================================== */
@@ -1013,12 +1740,16 @@ function initSitewideMotion() {
   // 2. Calibrated scroll-reveal cascade across homepage & all subpages
   const staggerContainers = [
     '.products-deep-grid',
+    '.about-bento',
+    '.about-reality-list',
     '.about-pillars-grid',
     '.subpage-glass-grid',
     '.governance-grid',
     '.planner-shell',
     '.interactive-calc-box',
     '.contact-grid',
+    '.save-steps-grid',
+    '.save-faq-list',
     '.about-strategy-grid',
     '.story-rail'
   ];
@@ -1031,6 +1762,7 @@ function initSitewideMotion() {
     '.about-hq-card',
     '.subpage-dark-band',
     '.subpage-notice-card',
+    '.save-accordion',
     '.comparison-table-wrap'
   ];
 
@@ -1090,7 +1822,7 @@ function initSitewideMotion() {
   // 3. Subtle cursor spotlight sheen on dark elevated surfaces (desktop fine pointer only)
   if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     const darkSurfaces = document.querySelectorAll(
-      '.planner-stage-col, .calc-results-col, .subpage-hero-card, .subpage-dark-band, .subpage-glass-tile'
+      '.planner-stage-col, .calc-results-col, .save-wheel-card, .subpage-hero-card, .subpage-dark-band, .subpage-glass-tile'
     );
     darkSurfaces.forEach((surface) => {
       surface.classList.add('motion-spotlight');
@@ -1103,4 +1835,5 @@ function initSitewideMotion() {
       }, { passive: true });
     });
   }
-}
+}
+
