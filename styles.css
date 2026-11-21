@@ -9315,12 +9315,15 @@ a.cdesk-channel-sub:hover {
 
 .cdesk-step-actions .cdesk-next-btn,
 .cdesk-step-actions .cdesk-submit-btn {
-  flex: 1;
-  height: 48px;
+  flex: 1 1 auto;
+  min-height: 50px;
+  height: 50px;
+  padding: 0 24px;
 }
 
 .cdesk-back-btn {
-  height: 48px;
+  min-height: 50px;
+  height: 50px;
   padding: 0 20px;
   border-radius: 999px;
   border: 1.5px solid #d2e2dc;
@@ -9918,10 +9921,16 @@ a.cdesk-channel-sub:hover {
   .cdesk-step-actions {
     flex-direction: column-reverse;
     align-items: stretch;
+    gap: 10px;
   }
 
+  .cdesk-step-actions .cdesk-next-btn,
+  .cdesk-step-actions .cdesk-submit-btn,
   .cdesk-back-btn {
+    flex: 0 0 auto;
     width: 100%;
+    min-height: 50px;
+    height: 50px;
   }
 }
 
