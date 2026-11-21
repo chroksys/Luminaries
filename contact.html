@@ -5,14 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact & Institutional Inquiries — Luminaries Capital</title>
   <meta name="description" content="Get in touch with Luminaries Capital. Headquarters in Nakawa, Kampala, Uganda. Dedicated support for savers, investment clubs, SACCOs, and institutional partners.">
+  <meta name="theme-color" content="#042521">
+  <link rel="canonical" href="https://luminaries.capital/contact.html">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://luminaries.capital/contact.html">
+  <meta property="og:title" content="Contact Luminaries Capital — Kampala Advisory & Institutional Desk">
+  <meta property="og:description" content="Connect with Luminaries Capital in Nakawa, Kampala for personal savings guidance, SACCO & Circle onboarding, or institutional treasury inquiries.">
+  <meta property="og:image" content="https://luminaries.capital/images/pexels-libasse-el-arbi-ndoye-235374276-12179674.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Contact Luminaries Capital — Kampala Advisory & Institutional Desk">
+  <meta name="twitter:description" content="Connect with Luminaries Capital in Nakawa, Kampala for personal savings guidance, SACCO & Circle onboarding, or institutional treasury inquiries.">
   
   <link rel="icon" type="image/jpeg" href="logo2.jpeg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="styles.css?v=mobile_v4">
+  <link rel="stylesheet" href="styles.css?v=prod_v1">
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <!-- TOP NAVIGATION -->
   <nav class="site-nav glass3d" id="main-nav" aria-label="Main Navigation">
@@ -185,7 +196,7 @@
     </div>
   </nav>
 
-  <main>
+  <main id="main-content">
     <!-- SUBPAGE HERO -->
     <header class="subpage-hero">
       <div class="subpage-hero-grid">
@@ -289,64 +300,71 @@
             We respond within two business hours to all individual and institutional briefs.
           </p>
 
-          <form id="contact-form-elem" onsubmit="event.preventDefault(); window.handleContactSubmit();">
+          <form id="contact-form-elem" action="https://formsubmit.co/christianokitovs@gmail.com" method="POST" onsubmit="event.preventDefault(); window.handleContactSubmit();">
+            <input type="hidden" name="_subject" value="New Luminaries Capital Website Inquiry">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" aria-hidden="true">
+
             <div class="form-group">
               <label class="form-label" for="inquiry-tier">Account or Inquiry Category</label>
-              <select id="inquiry-tier" class="form-select" required>
-                <option value="individual">Personal Wealth &amp; Savings (Flex, GoalSave, Steady)</option>
-                <option value="sacco">Investment Club / SACCO / Chama (Luminaries Circle)</option>
-                <option value="treasury">Corporate &amp; Institutional Treasury Solutions</option>
-                <option value="dollar">USD Global Markets &amp; Eurobond Custody</option>
-                <option value="partnership">API &amp; Fintech Ecosystem Partnership</option>
+              <select id="inquiry-tier" name="category" class="form-select" required>
+                <option value="Personal Wealth & Savings (Flex, GoalSave, Steady)">Personal Wealth &amp; Savings (Flex, GoalSave, Steady)</option>
+                <option value="Investment Club / SACCO / Chama (Luminaries Circle)">Investment Club / SACCO / Chama (Luminaries Circle)</option>
+                <option value="Corporate & Institutional Treasury Solutions">Corporate &amp; Institutional Treasury Solutions</option>
+                <option value="USD Global Markets & Eurobond Custody">USD Global Markets &amp; Eurobond Custody</option>
+                <option value="API & Fintech Ecosystem Partnership">API &amp; Fintech Ecosystem Partnership</option>
               </select>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
                 <label class="form-label" for="full-name">Full Name</label>
-                <input type="text" id="full-name" class="form-input" placeholder="e.g. Sarah Namubiru" required>
+                <input type="text" id="full-name" name="name" class="form-input" placeholder="e.g. Sarah Namubiru" required>
               </div>
 
               <div class="form-group">
                 <label class="form-label" for="organization-name">Organization / SACCO (Optional)</label>
-                <input type="text" id="organization-name" class="form-input" placeholder="e.g. Apex Circle Ltd">
+                <input type="text" id="organization-name" name="organization" class="form-input" placeholder="e.g. Apex Circle Ltd">
               </div>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
                 <label class="form-label" for="email-addr">Corporate or Personal Email</label>
-                <input type="email" id="email-addr" class="form-input" placeholder="name@domain.com" required>
+                <input type="email" id="email-addr" name="email" class="form-input" placeholder="name@domain.com" required>
               </div>
 
               <div class="form-group">
                 <label class="form-label" for="phone-number">Phone / WhatsApp</label>
-                <input type="tel" id="phone-number" class="form-input" placeholder="+256 700 000 000" required>
+                <input type="tel" id="phone-number" name="phone" class="form-input" placeholder="+256 700 000 000" required>
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="portfolio-scale">Expected Savings / Portfolio Volume</label>
-              <select id="portfolio-scale" class="form-select">
-                <option value="starter">UGX 1,000,000 — 10,000,000 ($250 — $2,500)</option>
-                <option value="growth">UGX 10,000,000 — 50,000,000 ($2,500 — $13,500)</option>
-                <option value="club">UGX 50,000,000 — 250,000,000 (Club / SACCO Tier)</option>
-                <option value="institutional">UGX 250,000,000+ / $100,000+ (Institutional Treasury)</option>
+              <select id="portfolio-scale" name="portfolio_scale" class="form-select">
+                <option value="UGX 1M - 10M ($250 - $2,500)">UGX 1,000,000 — 10,000,000 ($250 — $2,500)</option>
+                <option value="UGX 10M - 50M ($2,500 - $13,500)">UGX 10,000,000 — 50,000,000 ($2,500 — $13,500)</option>
+                <option value="UGX 50M - 250M (Club / SACCO Tier)">UGX 50,000,000 — 250,000,000 (Club / SACCO Tier)</option>
+                <option value="UGX 250M+ / $100,000+ (Institutional Treasury)">UGX 250,000,000+ / $100,000+ (Institutional Treasury)</option>
               </select>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="inquiry-message">How can our team help you?</label>
-              <textarea id="inquiry-message" class="form-textarea" placeholder="Detail your investment timeline, target yields, or specific product requirements..." required></textarea>
+              <textarea id="inquiry-message" name="message" class="form-textarea" placeholder="Detail your investment timeline, target yields, or specific product requirements..." required></textarea>
             </div>
 
-            <button type="submit" class="subpage-dark-cta" style="width:100%;">
-              <span class="btn-label">Submit Inquiry &amp; Connect with an Advisor</span>
+            <button type="submit" id="contact-submit-btn" class="subpage-dark-cta" style="width:100%;">
+              <span class="btn-label" id="contact-submit-label">Submit Inquiry &amp; Connect with an Advisor</span>
               <span class="btn-arrow-slot" aria-hidden="true">
                 <svg class="btn-arrow-front" viewBox="0 0 16 16" fill="none"><path d="M3.5 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 <svg class="btn-arrow-back" viewBox="0 0 16 16" fill="none"><path d="M3.5 8h9M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" /></svg>
               </span>
             </button>
+
+            <div id="contact-error-msg" role="alert" style="display:none; padding:14px 16px; border-radius:14px; background:#fff5f4; border:1px solid #f0b8b2; color:#7a241b; font-size:13px; line-height:1.5; margin-top:14px;"></div>
           </form>
 
           <!-- SUCCESS STATE (HIDDEN DEFAULT) -->
@@ -506,11 +524,15 @@
 
       <div class="footer-bottom-row">
         <span>© 2026 Luminaries Capital Ltd. All rights reserved.</span>
+        <div class="footer-legal-links">
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Service</a>
+        </div>
         <span>NAKAWA, KAMPALA · BUILT FOR AFRICA</span>
       </div>
     </div>
   </footer>
 
-  <script src="app.js?v=mobile_v1"></script>
+  <script src="app.js?v=prod_v1"></script>
 </body>
 </html>

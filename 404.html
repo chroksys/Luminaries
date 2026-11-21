@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found — Luminaries Capital</title>
+  <meta name="description" content="The page you requested could not be found on Luminaries Capital.">
+  <meta name="theme-color" content="#042521">
+  <link rel="icon" type="image/jpeg" href="logo2.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css?v=prod_v1">
+  <style>
+    .error-shell {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 5vw;
+      color: #ffffff;
+      background:
+        radial-gradient(ellipse 68% 60% at 20% 25%, rgba(0, 168, 150, 0.2), transparent 65%),
+        radial-gradient(ellipse 46% 46% at 84% 80%, rgba(228, 242, 34, 0.07), transparent 60%),
+        #042521;
+    }
+    .error-code {
+      display: inline-flex;
+      padding: 6px 16px;
+      margin-bottom: 22px;
+      border-radius: 999px;
+      background: #eaf6c8;
+      color: #052d28;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .error-shell h1 {
+      font: 600 clamp(40px, 6vw, 76px)/1.02 var(--font-display);
+      letter-spacing: -0.048em;
+      margin: 0 0 18px;
+      max-width: 14ch;
+    }
+    .error-shell h1 em {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      color: #d7f28f;
+    }
+    .error-shell p {
+      max-width: 44ch;
+      margin: 0 0 32px;
+      color: rgba(226, 242, 237, 0.78);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .error-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 16px;
+    }
+    .error-links .btn-back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      height: 50px;
+      padding: 0 26px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #042521;
+      font: 650 14.5px/1 var(--font-display);
+      text-decoration: none;
+      transition: background-color 0.24s ease, transform 0.24s ease;
+    }
+    .error-links .btn-back-home:hover {
+      background: var(--color-solar);
+      transform: translateY(-2px);
+    }
+    .error-links .btn-sub {
+      display: inline-flex;
+      align-items: center;
+      height: 50px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      font: 500 14px/1 var(--font-display);
+      text-decoration: none;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+    .error-links .btn-sub:hover {
+      border-color: var(--color-solar);
+      color: var(--color-solar);
+    }
+  </style>
+</head>
+<body>
+  <main class="error-shell" id="main-content">
+    <span class="error-code">Error 404 · Page not found</span>
+    <h1>We couldn’t find <em>that page.</em></h1>
+    <p>The link may have moved or been mistyped. Return to the Luminaries Capital homepage or jump directly to savings and investments.</p>
+    <div class="error-links">
+      <a class="btn-back-home" href="index.html">Back to homepage →</a>
+      <a class="btn-sub" href="save.html">Explore Save</a>
+      <a class="btn-sub" href="invest.html">Explore Invest</a>
+      <a class="btn-sub" href="contact.html">Contact support</a>
+    </div>
+  </main>
+</body>
+</html>
