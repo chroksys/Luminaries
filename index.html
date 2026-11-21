@@ -46,7 +46,7 @@
   <link rel="preload" as="image" href="images/pexels-libasse-el-arbi-ndoye-235374276-12179674.webp">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="styles.css?v=prod_v1">
+  <link rel="stylesheet" href="styles.css?v=partner_logos_v2">
 </head>
 
 <body>
@@ -482,24 +482,28 @@
                 <img src="images/flag-na.png" alt="Namibia" width="18" height="18" loading="lazy">
                 <img src="images/flag-za.png" alt="South Africa" width="18" height="18" loading="lazy">
               </span>
-              <span>14 African countries <small>· illustrative</small></span>
+              <span>14 African countries</span>
             </div>
             <h3>Trusted by</h3>
             <div class="partner-window">
               <div class="partner-track">
-                <ul class="network-names">
-                  <li>Airtel</li>
-                  <li>MTN</li>
-                  <li>Stanbic Bank</li>
-                  <li>Equity</li>
-
+                <ul class="network-names" aria-label="Partner organizations">
+                  <li><img class="partner-logo partner-logo--badge" src="images/partner-airtel.webp" alt="Airtel Money" width="200" height="200" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--wide" src="images/partner-stanbic.webp" alt="Stanbic Uganda" width="668" height="184" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--badge" src="images/partner-mtn.webp" alt="MTN MoMo" width="536" height="160" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--blend" src="images/partner-equity.webp" alt="Equity Bank" width="255" height="179" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--badge" src="images/partner-uba.webp" alt="UBA United Bank for Africa" width="334" height="142" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--tall" src="images/partner-ura.webp" alt="Uganda Revenue Authority" width="306" height="200" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--tall partner-logo--blend" src="images/partner-mofped.webp" alt="Ministry of Finance, Planning and Economic Development" width="251" height="201" loading="lazy" decoding="async"></li>
                 </ul>
                 <ul class="network-names" aria-hidden="true">
-                  <li>Airtel</li>
-                  <li>MTN</li>
-                  <li>Stanbic Bank</li>
-                  <li>Equity</li>
-
+                  <li><img class="partner-logo partner-logo--badge" src="images/partner-airtel.webp" alt="" width="200" height="200" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--wide" src="images/partner-stanbic.webp" alt="" width="668" height="184" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--badge" src="images/partner-mtn.webp" alt="" width="536" height="160" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--blend" src="images/partner-equity.webp" alt="" width="255" height="179" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--badge" src="images/partner-uba.webp" alt="" width="334" height="142" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--tall" src="images/partner-ura.webp" alt="" width="306" height="200" loading="lazy" decoding="async"></li>
+                  <li><img class="partner-logo partner-logo--tall partner-logo--blend" src="images/partner-mofped.webp" alt="" width="251" height="201" loading="lazy" decoding="async"></li>
                 </ul>
               </div>
             </div>
@@ -514,15 +518,17 @@
         <button role="tab" id="choose-invest" aria-selected="false" aria-controls="feature-invest"
           tabindex="-1">Invest</button>
       </div>
-      <div class="product-panel" role="tabpanel" id="feature-save" aria-labelledby="choose-save">
-        <h2>Save for your next goal.</h2>
-        <p>Choose a target and a timeline, then see how much to set aside each month.</p>
-        <a class="action-pill" href="save.html">Explore savings plans</a>
-      </div>
-      <div class="product-panel" role="tabpanel" id="feature-invest" aria-labelledby="choose-invest" hidden>
-        <h2>Explore your investment options.</h2>
-        <p>Compare funds and treasury products, and understand the risks before you decide.</p>
-        <a class="action-pill" href="invest.html">Explore investments</a>
+      <div class="product-panels-stage">
+        <div class="product-panel" role="tabpanel" id="feature-save" aria-labelledby="choose-save">
+          <h2>Save for your next goal.</h2>
+          <p>Choose a target and a timeline, then see how much to set aside each month.</p>
+          <a class="action-pill" href="save.html">Explore savings plans</a>
+        </div>
+        <div class="product-panel" role="tabpanel" id="feature-invest" aria-labelledby="choose-invest" hidden>
+          <h2>Explore your investment options.</h2>
+          <p>Compare funds and treasury products, and understand the risks before you decide.</p>
+          <a class="action-pill" href="invest.html">Explore investments</a>
+        </div>
       </div>
     <div class="deck-strip" aria-label="Product card collection" role="region">
       <div class="deck-window" id="deck-save" tabindex="0" role="region" aria-label="Savings product cards">
