@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSaveWheel();
   initContactForm();
   initSitewideMotion();
+  initFoldableAdaptation();
 });
 
 /* ========================================================================== 
@@ -1835,5 +1836,74 @@ function initSitewideMotion() {
       }, { passive: true });
     });
   }
+}
+
+/* ==========================================================================
+   13. FOLDABLE & DUAL-SCREEN POSTURE ADAPTATION
+   Detects live fold/unfold transitions & W3C Viewport Segments (Book / Tabletop)
+   ========================================================================== */
+function initFoldableAdaptation() {
+  const root = document.documentElement;
+  const bookMQ = window.matchMedia ? window.matchMedia('(horizontal-viewport-segments: 2)') : null;
+  const tabletopMQ = window.matchMedia ? window.matchMedia('(vertical-viewport-segments: 2)') : null;
+
+  let lastBucket = '';
+  let resizeTimer = null;
+
+  const getViewportBucket = () => {
+    const w = window.innerWidth;
+    if (w <= 374) return 'cover';
+    if (w < 720) return 'mobile';
+    if (w <= 960) return 'unfolded';
+    return 'desktop';
+  };
+
+  const syncFoldPosture = (isTransition = false) => {
+    let posture = 'single';
+    const segments = window.viewport && Array.isArray(window.viewport.segments) ? window.viewport.segments : null;
+
+    if ((bookMQ && bookMQ.matches) || (segments && segments.length === 2 && segments[0].top === segments[1].top)) {
+      posture = 'book';
+    } else if ((tabletopMQ && tabletopMQ.matches) || (segments && segments.length === 2 && segments[0].left === segments[1].left)) {
+      posture = 'tabletop';
+    }
+
+    root.dataset.foldPosture = posture;
+
+    const bucket = getViewportBucket();
+    root.dataset.viewportClass = bucket;
+
+    // When physically folding/unfolding across layout breakpoints, cleanly close overlays & refresh scroll trackers
+    if (isTransition && bucket !== lastBucket) {
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      const mobileBtn = document.getElementById('mobile-menu-btn');
+      const megaMenu = document.getElementById('revolut-megamenu');
+      if (mobileDrawer) {
+        mobileDrawer.classList.remove('active');
+        mobileDrawer.setAttribute('aria-hidden', 'true');
+      }
+      if (mobileBtn) mobileBtn.classList.remove('active');
+      if (megaMenu) megaMenu.classList.remove('is-open');
+
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event('scroll'));
+      });
+    }
+    lastBucket = bucket;
+  };
+
+  const scheduleSync = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => syncFoldPosture(true), 120);
+  };
+
+  syncFoldPosture(false);
+  window.addEventListener('resize', scheduleSync, { passive: true });
+  window.addEventListener('orientationchange', scheduleSync, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scheduleSync, { passive: true });
+  }
+  if (bookMQ && bookMQ.addEventListener) bookMQ.addEventListener('change', () => syncFoldPosture(true));
+  if (tabletopMQ && tabletopMQ.addEventListener) tabletopMQ.addEventListener('change', () => syncFoldPosture(true));
 }
 

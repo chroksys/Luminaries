@@ -4268,7 +4268,7 @@ a.contact-detail-val:hover {
   transition: color 340ms ease, background-color 240ms ease, transform 240ms ease;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 720px) {
   #main-nav .nav-container {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -4290,6 +4290,10 @@ a.contact-detail-val:hover {
 
   #main-nav .nav-right {
     justify-self: end;
+  }
+
+  #main-nav .mobile-menu-btn {
+    display: none !important;
   }
 }
 
@@ -4338,9 +4342,9 @@ a.contact-detail-val:hover {
   background: rgba(0, 168, 150, 0.12);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 719px) {
   #main-nav {
-    top: 10px;
+    top: max(10px, env(safe-area-inset-top));
     width: calc(100vw - 20px);
     padding: 10px 14px;
   }
@@ -4348,7 +4352,7 @@ a.contact-detail-val:hover {
   #main-nav.scrolled {
     top: 0;
     width: 100vw;
-    padding: 10px 16px;
+    padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
   }
 }
 
@@ -4931,7 +4935,7 @@ html body .site-footer .footer-cta-button:active {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 719px) {
   #main-nav {
     min-height: 60px;
     width: calc(100vw - 20px);
@@ -10458,5 +10462,422 @@ a.cdesk-channel-sub:hover {
     width: auto;
     height: 28px;
     background: linear-gradient(180deg, #eff6f3 0%, rgba(239, 246, 243, 0) 100%);
+  }
+}
+
+/* ==========================================================================
+   FOLDABLE & DUAL-SCREEN OPTIMIZATION SYSTEM
+   Targets:
+     1) Folded ultra-narrow cover screens (280px–374px: Z Fold cover display)
+     2) Unfolded square inner screens (720px–960px: Z Fold, Pixel Fold, Open, iPhone Fold)
+     3) W3C Book Mode dual-screen spanning (horizontal-viewport-segments: 2)
+     4) W3C Tabletop / Flex Mode (vertical-viewport-segments: 2)
+     5) Safe-area insets for foldable camera cutouts & gesture bars
+   ========================================================================== */
+
+/* Safe-area protection on scrolled nav & rounded footer */
+@supports (padding: max(0px)) {
+  #main-nav.scrolled {
+    padding-top: calc(12px + env(safe-area-inset-top));
+    padding-left: max(5vw, calc((100vw - 1160px) / 2), env(safe-area-inset-left));
+    padding-right: max(5vw, calc((100vw - 1160px) / 2), env(safe-area-inset-right));
+  }
+
+  .site-footer {
+    padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    padding-left: max(5vw, calc((100vw - 1160px) / 2), env(safe-area-inset-left));
+    padding-right: max(5vw, calc((100vw - 1160px) / 2), env(safe-area-inset-right));
+  }
+}
+
+/* 1. UNFOLDED INNER DISPLAYS (Galaxy Z Fold 768px, Pixel Fold 841px, OnePlus Open 812px) */
+@media (min-width: 720px) and (max-width: 960px) {
+  #main-nav {
+    width: calc(100vw - 24px);
+    padding: 10px 16px;
+  }
+
+  #main-nav .nav-container {
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+  }
+
+  #main-nav .brand-symbol-wrap {
+    width: 30px;
+    height: 30px;
+  }
+
+  #main-nav .brand-name {
+    font-size: 14.5px;
+    white-space: nowrap;
+  }
+
+  #main-nav .nav-pills-list {
+    gap: 2px;
+  }
+
+  #main-nav .nav-pill {
+    padding: 7px 10px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  #main-nav .nav-cta-btn {
+    min-height: 38px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  /* Preserve true side-by-side split hero on unfolded foldables (prevents face cropping) */
+  .save-hero-grid {
+    grid-template-columns: minmax(0, 1.06fr) minmax(260px, 0.94fr);
+    gap: clamp(20px, 3vw, 34px);
+    align-items: center;
+  }
+
+  .save-hero-title {
+    font-size: clamp(32px, 4.4vw, 46px);
+  }
+
+  .save-hero-photo-frame {
+    aspect-ratio: 4 / 4.45;
+    max-height: 430px;
+  }
+
+  .save-hero-photo {
+    object-position: 50% 18%;
+  }
+
+  .save-hero-overlay-card {
+    left: -14px;
+    right: auto;
+    width: min(296px, calc(100% + 6px));
+    padding: 14px 16px;
+  }
+
+  .shmc-pill {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Keep Contact Desk side-by-side on unfolded foldables */
+  .contact-desk-shell {
+    grid-template-columns: minmax(292px, 0.92fr) minmax(0, 1.08fr);
+    gap: 16px;
+  }
+
+  .contact-concierge-panel,
+  .contact-intake-panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .cdesk-topic-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .cdesk-volume-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cdesk-glass-row {
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    padding: 11px 12px;
+    gap: 9px;
+  }
+
+  .cdesk-channel-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cdesk-channel-val {
+    font-size: 12px;
+  }
+
+  .cdesk-copy-btn {
+    padding: 4px 8px;
+    font-size: 9.5px;
+  }
+
+  /* Preserve 2-column About Us bento & Market Reality split on unfolded screens */
+  .about-bento {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    grid-template-rows: repeat(2, minmax(210px, auto));
+    gap: 14px;
+  }
+
+  .about-bento-card.is-photo-tall {
+    grid-row: span 2;
+    min-height: 434px;
+  }
+
+  .about-bento-card.is-light,
+  .about-bento-card.is-emerald {
+    grid-template-columns: minmax(0, 1fr) 118px;
+    gap: 14px;
+    padding: 20px;
+  }
+
+  .about-reality-grid {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+    gap: 18px;
+  }
+
+  .about-reality-item {
+    grid-template-columns: 48px minmax(0, 1fr);
+    padding: 16px 18px;
+    gap: 12px;
+  }
+
+  .ari-num {
+    font-size: 36px;
+  }
+
+  /* Keep Governance 6-tile bento side-by-side on unfolded screens >= 760px */
+  .gov-bento {
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+    gap: 14px;
+  }
+
+  .gov-bento-col-right {
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .gov-tile.is-row-light,
+  .gov-tile.is-row-dark,
+  .gov-tile.is-row-mist {
+    grid-template-columns: minmax(0, 1.15fr) minmax(112px, 0.85fr);
+    gap: 12px;
+    padding: 16px 18px;
+  }
+
+  .gov-tile.is-row-mist {
+    padding: 0;
+    gap: 0;
+  }
+
+  .gov-tile.is-row-mist .gov-row-copy {
+    padding: 16px 14px 16px 18px;
+  }
+
+  .gov-row-visual.is-coin-stage img {
+    width: 96px;
+    height: 96px;
+  }
+
+  /* Trim tall Manifesto sticky track on square unfolded inner screens */
+  .manifesto-sticky-wrapper {
+    min-height: 165vh;
+  }
+}
+
+/* 2. ULTRA-NARROW FOLDED COVER SCREENS (280px–374px: Galaxy Z Fold 4/5/6/7 cover display) */
+@media (max-width: 374px) {
+  #main-nav {
+    width: calc(100vw - 14px);
+    padding: 8px 10px;
+    min-height: 54px;
+  }
+
+  .brand-symbol-wrap {
+    width: 30px;
+    height: 30px;
+  }
+
+  .brand-name {
+    font-size: 13px;
+    max-width: 96px;
+  }
+
+  .savings-hero {
+    padding-top: 86px;
+  }
+
+  .savings-intro h1,
+  .subpage-title,
+  .save-hero-title {
+    font-size: clamp(26px, 8.6vw, 34px);
+    line-height: 1.08;
+  }
+
+  .hb-card {
+    width: 184px;
+  }
+
+  .hb-photo {
+    height: 166px;
+  }
+
+  .save-hero-overlay-card {
+    left: 10px;
+    right: 10px;
+    padding: 12px 14px;
+  }
+
+  .shmc-amount {
+    font-size: 18px;
+  }
+
+  .contact-concierge-panel,
+  .contact-intake-panel {
+    padding: 18px 14px;
+    border-radius: 22px;
+  }
+
+  .cdesk-glass-row {
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    gap: 9px;
+    padding: 11px 11px;
+  }
+
+  .cdesk-channel-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+  }
+
+  .cdesk-channel-val {
+    font-size: 12px;
+  }
+
+  .cdesk-copy-btn {
+    padding: 4px 8px;
+    font-size: 9.5px;
+  }
+
+  .cdesk-stepper-list {
+    gap: 4px;
+  }
+
+  .cdesk-step-tab {
+    padding: 5px 4px;
+    gap: 5px;
+  }
+
+  .cdesk-step-num {
+    width: 19px;
+    height: 19px;
+    font-size: 10px;
+  }
+
+  .cdesk-step-name {
+    font-size: 10px;
+  }
+
+  .cdesk-volume-pill {
+    padding: 9px 6px;
+  }
+
+  .cdesk-volume-pill strong {
+    font-size: 11.5px;
+  }
+
+  .gov-partner-logos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 100%;
+  }
+
+  .calc-res-figure {
+    font-size: 26px;
+  }
+
+  .footer-cta h2 {
+    font-size: clamp(28px, 9.2vw, 36px);
+  }
+}
+
+/* 3. W3C DUAL-SCREEN BOOK MODE (Galaxy Z Fold / Pixel Fold / Surface Duo / Foldable iPhone) */
+@media (horizontal-viewport-segments: 2) {
+  :root {
+    --fold-left: env(viewport-segment-width 0 0);
+    --fold-right: env(viewport-segment-width 1 0);
+    --fold-hinge: max(20px, calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0)));
+  }
+
+  /* Keep centered navbar pills clear of an opaque physical dual-screen hinge */
+  #main-nav .nav-container {
+    grid-template-columns: minmax(0, calc(var(--fold-left) - 24px)) minmax(0, calc(var(--fold-right) - 24px));
+    gap: var(--fold-hinge);
+  }
+
+  #main-nav .nav-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #main-nav #desktop-nav-links {
+    justify-self: end;
+  }
+
+  /* Snap all 2-column flagship grids cleanly across Left Screen | Hinge | Right Screen */
+  .page-container,
+  .subpage-hero-grid,
+  .save-hero-grid {
+    width: min(100%, calc(var(--fold-left) + var(--fold-right) + var(--fold-hinge) - 32px));
+    max-width: none;
+  }
+
+  .savings-hero,
+  .save-hero-grid,
+  .subpage-hero-grid,
+  .planner-grid,
+  .calc-grid,
+  .contact-desk-shell,
+  .about-bento,
+  .about-reality-grid,
+  .about-strategy-grid,
+  .gov-bento,
+  .save-wheel-layout {
+    display: grid;
+    grid-template-columns:
+      minmax(0, calc(var(--fold-left) - 24px))
+      minmax(0, calc(var(--fold-right) - 24px));
+    column-gap: calc(var(--fold-hinge) + 16px);
+  }
+
+  /* Prevent dialog modals from being split in half by the central fold hinge */
+  .story-dialog[open] {
+    margin: auto 16px auto calc(env(viewport-segment-left 1 0) + 16px);
+    width: calc(var(--fold-right) - 32px);
+    max-width: calc(var(--fold-right) - 32px);
+  }
+}
+
+/* 4. W3C TABLETOP / FLEX MODE (Galaxy Z Flip / Z Fold bent at 90° horizontally) */
+@media (vertical-viewport-segments: 2) {
+  :root {
+    --fold-top-h: env(viewport-segment-height 0 0);
+    --fold-v-hinge: max(18px, calc(env(viewport-segment-top 1 0) - env(viewport-segment-bottom 0 0)));
+  }
+
+  /* Keep hero visual neatly in upper screen & push lower actions below the horizontal fold */
+  .save-hero-photo-frame,
+  .about-reality-media {
+    max-height: calc(var(--fold-top-h) - 108px);
+  }
+
+  .subpage-hero,
+  .savings-hero {
+    min-height: auto;
+    padding-bottom: calc(var(--fold-v-hinge) + 28px);
+  }
+
+  /* Release tall sticky scroll tracks so nothing gets stuck behind the horizontal crease */
+  .save-wheel-track,
+  .manifesto-sticky-wrapper {
+    height: auto;
+    min-height: auto;
+  }
+
+  .save-wheel-sticky,
+  .manifesto-sticky {
+    position: relative;
+    top: 0;
   }
 }
